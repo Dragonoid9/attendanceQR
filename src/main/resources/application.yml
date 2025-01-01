@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: AttendanceSystem
+
+  #Liquibase Setup
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    enabled: true
+
+  #Spring Database MySql Configuration
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/attendance_system
+    username: root
+    password: root
+  jpa:
+    properties:
+      hibernate:
+        format_sql=true:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+
+#Jwt
+jwt:
+    secret: ${secretKey}
+    accessexpiration: ${accessExpire}
+    refreshexpiration: ${refreshExpire}
