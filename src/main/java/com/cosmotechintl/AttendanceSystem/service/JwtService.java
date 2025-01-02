@@ -10,9 +10,11 @@ public interface JwtService {
 
     boolean validateToken(String token, UserDetails userDetails);
 
+    boolean validateRefreshToken(String token);
+
     String generateToken(String username, List<String> roles);
 
     String generateRefreshToken(String username);
 
-    List<String> extractRoles(String token);
+    List<String> extractRolesFromUsername(String username);
 }

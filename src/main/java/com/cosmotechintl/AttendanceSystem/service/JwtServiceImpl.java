@@ -1,10 +1,15 @@
 package com.cosmotechintl.AttendanceSystem.service;
 
+import com.cosmotechintl.AttendanceSystem.exception.TokenValidationException;
+import com.cosmotechintl.AttendanceSystem.repository.AuthTokenRepository;
+import com.cosmotechintl.AttendanceSystem.repository.UserInfoRepository;
+import com.cosmotechintl.AttendanceSystem.repository.UserRoleRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -25,6 +30,13 @@ public class JwtServiceImpl implements JwtService {
 
     @Value("${jwt.refreshexpiration}")
     private long refreshExpirationTime;
+
+    @Autowired
+    private AuthTokenRepository authTokenRepository;
+    @Autowired
+    private UserInfoRepository userInfoRepository;
+    @Autowired
+    private UserRoleRepository userRoleRepository;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -67,7 +79,17 @@ public class JwtServiceImpl implements JwtService {
 
     public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
+        String accessTokenValid = authTokenRepository.existByAccessTokenAndIsActiveFalse(token)
+                .orElseThrow(()-> new TokenValidationException("Token is not Valid."));
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public boolean validateRefreshToken(String token){
+        final String username = extractUsername(token);
+        String refreshTokenValid =authTokenRepository.existByRefreshTokenAndIsActiveFalse(token)
+                .orElseThrow(()-> new TokenValidationException(("Refresh Token is not Valid.")));
+
+        return (username !=null && !isTokenExpired(token));
     }
 
     public String generateToken(String username, List<String> roles) {
@@ -83,5 +105,9 @@ public class JwtServiceImpl implements JwtService {
     public List<String> extractRoles(String token) {
         Claims claims = extractAllClaims(token);
         return claims.get("roles", List.class);
+    }
+
+    public List<String> extractRolesFromUsername(String username){
+        return userInfoRepository.getRolesByUsername(username);
     }
 }
