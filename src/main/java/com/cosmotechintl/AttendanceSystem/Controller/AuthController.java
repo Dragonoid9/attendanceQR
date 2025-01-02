@@ -37,6 +37,19 @@ public class AuthController {
       return authService.generateRefreshToken(refreshToken);
   }
 
+  @PostMapping("/logout")
+  public ApiResponse<?> logout(@RequestHeader("Authorization") String authHeader){
+    log.info("Beginning logout: " + authHeader);
+    String accessToken = null;
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+      accessToken = authHeader.substring(7);  // Remove "Bearer "
+    } else {
+      return ResponseUtil.getValidationErrorResponse("Access token is missing or invalid.");
+    }
+    log.info("no issue in the controller accessToken: " + accessToken);
+    return authService.logoutUser(accessToken);
+  }
+
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/getAllRefreshToken")
     public ApiResponse<?> getAllRefreshToken(){

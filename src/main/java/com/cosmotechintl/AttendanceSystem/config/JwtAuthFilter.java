@@ -32,7 +32,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String requestUri = request.getRequestURI();
         System.out.println("Request URI: " + requestUri);  // Log the request URI
 
-        if ("/auth/refreshToken".equals(requestUri)) {
+        if ("/auth/refreshToken".equals(requestUri) || ("/auth/logout".equals(requestUri))){
             filterChain.doFilter(request, response);  // Skip the JWT filter logic and continue to the controller
             return;
         }

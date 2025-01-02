@@ -9,11 +9,10 @@ public class PublicUrls {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/swagger-resources/**",
-            "/swagger-resources",
-            "/api/v1/user/login",
-            "/api/v1/user/refresh-token"
+            "/swagger-resources"
             ,"/auth/login"
             ,"/auth/refreshToken"
+            ,"/auth/logout"
 //            ,"/authUser/addUser"
 //            ,"/authUser/addRole"
     };

@@ -20,6 +20,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -119,6 +120,30 @@ public class AuthServiceImp implements AuthService {
 
             return ResponseUtil.getSuccessResponse(authResponseDTO,"Successfully Refreshed.");
         }catch (Exception e) {
+            return ResponseUtil.getErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public ApiResponse<?> logoutUser(String accessToken) {
+        try {
+            if (accessToken == null || accessToken.trim().isEmpty()) {
+                return ResponseUtil.getValidationErrorResponse("Access token is missing or invalid.");
+            }
+            log.info("Before passing the logout user for the extraction of username {}", accessToken);
+            // Extract username and device ID from the token
+            String username = jwtService.extractUsername(accessToken);
+
+            log.info("After the extranction of username {}", username);
+            // Validate token and device ID
+            AuthToken authToken = authTokenRepository.findByAccessToken(accessToken)
+                    .orElseThrow(() -> new ResourceNotFoundException("Token not found or already logged out."));
+
+            // Mark token as used/inactive
+            authTokenRepository.setIsActiveTrue(authToken.getRefreshToken()); // Assuming true indicates the token is invalidated
+            SecurityContextHolder.clearContext();
+            return ResponseUtil.getSuccessResponse(null, "Logout successful.");
+        } catch (Exception e) {
             return ResponseUtil.getErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

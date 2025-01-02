@@ -22,4 +22,6 @@ public interface AuthTokenRepository extends JpaRepository<AuthToken, Long> {
     @Transactional
     @Query(value="UPDATE auth_token set is_active = true WHERE refresh_token = :refreshToken",nativeQuery = true)
     void setIsActiveTrue(String refreshToken);
+
+    Optional <AuthToken> findByAccessToken(String accessToken);
 }
