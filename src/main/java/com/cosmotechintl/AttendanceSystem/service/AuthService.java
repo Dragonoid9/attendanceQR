@@ -8,8 +8,7 @@ public interface AuthService {
 
     ApiResponse<?> loginUser(LoginRequestDTO loginRequestDTO);
 
+    ApiResponse<?> generateRefreshToken(String refreshToken);
 
-//    ApiResponse<?> generateRefreshToken(String refreshToken);
-//
-//    ApiResponse<?> getAllRefreshTokens();
+    ApiResponse<?> getAllRefreshTokens();
 }

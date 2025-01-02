@@ -29,6 +29,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        String requestUri = request.getRequestURI();
+        System.out.println("Request URI: " + requestUri);  // Log the request URI
+
+        if ("/auth/refreshToken".equals(requestUri)) {
+            filterChain.doFilter(request, response);  // Skip the JWT filter logic and continue to the controller
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
         String token = null;
         String username = null;

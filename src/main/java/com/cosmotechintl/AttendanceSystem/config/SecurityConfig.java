@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                  .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
+//                        .requestMatchers("/auth/refreshToken").permitAll()
                         .requestMatchers(PublicUrls.PUBLIC_URLS).permitAll()
                         .anyRequest().authenticated()
                 )

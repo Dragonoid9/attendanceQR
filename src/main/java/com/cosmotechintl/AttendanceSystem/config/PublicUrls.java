@@ -13,7 +13,8 @@ public class PublicUrls {
             "/api/v1/user/login",
             "/api/v1/user/refresh-token"
             ,"/auth/login"
-            ,"/authUser/addUser"
-            ,"/authUser/addRole"
+            ,"/auth/refreshToken"
+//            ,"/authUser/addUser"
+//            ,"/authUser/addRole"
     };
 }
