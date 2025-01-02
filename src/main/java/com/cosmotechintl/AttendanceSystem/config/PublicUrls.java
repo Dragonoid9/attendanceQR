@@ -12,7 +12,8 @@ public class PublicUrls {
             "/swagger-resources",
             "/api/v1/user/login",
             "/api/v1/user/refresh-token"
-//            ,"/api/v1/user/register",
-//            "/api/v1/user/role/add"
+            ,"/auth/login"
+            ,"/authUser/addUser"
+            ,"/authUser/addRole"
     };
 }

@@ -4,6 +4,7 @@
 CREATE TABLE users (
                        id BIGINT AUTO_INCREMENT PRIMARY KEY,
                        username VARCHAR(255) NOT NULL,
+                       email VARCHAR(255) NOT NULL UNIQUE ,
                        password VARCHAR(255),
                        UNIQUE (username)
 );
@@ -26,8 +27,10 @@ CREATE TABLE user_role (
 -- changeset Sadip_Khadka:3_create_auth_token_table
 CREATE TABLE auth_token (
                             id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                            token VARCHAR(255) NOT NULL UNIQUE,
-                            expiry_date TIMESTAMP NOT NULL,
+                            access_token VARCHAR(255) NOT NULL UNIQUE,
+                            refresh_token VARCHAR(255) NOT NULL UNIQUE,
+                            issued_date TIMESTAMP NOT NULL,
+                            is_active BOOLEAN NOT NULL DEFAULT FALSE,
                             user_id BIGINT NOT NULL,
-                            CONSTRAINT fk_auth_token_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+                            CONSTRAINT fk_auth_token_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
