@@ -72,7 +72,7 @@ public class AuthServiceImp implements AuthService {
         }catch (DataAccessException e) {
             return ResponseUtil.getValidationErrorResponse("Something went wrong. "+"Please contact support.");
         }catch (AuthenticationException e) {
-                return ResponseUtil.getValidationErrorResponse("Bad Credentials");
+                return ResponseUtil.getValidationErrorResponse("The username or password is incorrect. Please try again.");
         }catch (Exception e) {
             return ResponseUtil.getErrorResponse(e, HttpStatus.SERVICE_UNAVAILABLE);
         }

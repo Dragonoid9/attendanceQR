@@ -2,6 +2,8 @@ package com.cosmotechintl.AttendanceSystem.config;
 
 
 import com.cosmotechintl.AttendanceSystem.service.JwtService;
+import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,11 +13,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -46,15 +52,33 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            if(jwtService.validateToken(token, userDetails)){
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            try {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                if (jwtService.validateToken(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                } else {
+                    // Token is invalid, send custom error
+//                    sendAuthenticationError(response, "The username or password is incorrect. Please try again.");
+                    ResponseUtil.getValidationErrorResponse("Access Denied");//authentication error is handled by authentrypoint.
+                    return;
+                }
+            }catch (UsernameNotFoundException ex) {
+                // Handle case where the user is not found in the database
+//                sendAuthenticationError(response, "The username or password is incorrect. Please try again.");
+                ResponseUtil.getResourceNotFoundResponse("Not a Valid Username.");//this is handled by AuthException handled in the AuthService.
+                return;
             }
-
         }
 
         filterChain.doFilter(request, response);
     }
+//    private void sendAuthenticationError(HttpServletResponse response, String message) throws IOException {
+//        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//        Map<String, Object> data = new HashMap<>();
+//        data.put("timestamp", Calendar.getInstance().getTime());
+//        data.put("exception", message);
+//        response.getWriter().write(new ObjectMapper().writeValueAsString(data)); This private method has not been in used.
+//    }
 }
