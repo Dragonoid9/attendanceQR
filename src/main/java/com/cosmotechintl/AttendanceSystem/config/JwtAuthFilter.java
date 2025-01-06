@@ -2,6 +2,7 @@ package com.cosmotechintl.AttendanceSystem.config;
 
 
 import com.cosmotechintl.AttendanceSystem.service.JwtService;
+import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -59,23 +60,25 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 } else {
                     // Token is invalid, send custom error
-                    sendAuthenticationError(response, "The username or password is incorrect. Please try again.");
+//                    sendAuthenticationError(response, "The username or password is incorrect. Please try again.");
+                    ResponseUtil.getValidationErrorResponse("Access Denied");//authentication error is handled by authentrypoint.
                     return;
                 }
             }catch (UsernameNotFoundException ex) {
                 // Handle case where the user is not found in the database
-                sendAuthenticationError(response, "The username or password is incorrect. Please try again.");
+//                sendAuthenticationError(response, "The username or password is incorrect. Please try again.");
+                ResponseUtil.getResourceNotFoundResponse("Not a Valid Username.");//this is handled by AuthException handled in the AuthService.
                 return;
             }
         }
 
         filterChain.doFilter(request, response);
     }
-    private void sendAuthenticationError(HttpServletResponse response, String message) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        Map<String, Object> data = new HashMap<>();
-        data.put("timestamp", Calendar.getInstance().getTime());
-        data.put("exception", message);
-        response.getWriter().write(new ObjectMapper().writeValueAsString(data));
-    }
+//    private void sendAuthenticationError(HttpServletResponse response, String message) throws IOException {
+//        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//        Map<String, Object> data = new HashMap<>();
+//        data.put("timestamp", Calendar.getInstance().getTime());
+//        data.put("exception", message);
+//        response.getWriter().write(new ObjectMapper().writeValueAsString(data)); This private method has not been in used.
+//    }
 }
