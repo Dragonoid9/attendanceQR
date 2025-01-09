@@ -11,7 +11,12 @@ import com.cosmotechintl.AttendanceSystem.repository.QRRepository;
 import com.cosmotechintl.AttendanceSystem.repository.UserInfoRepository;
 import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -105,37 +109,14 @@ public class AttendanceServiceImpl implements AttendanceService {
             System.out.println("Error occurred while deleting daily QR codes: " + e.getMessage());
         }
     }
+    @Override
+    public ResponseEntity<?> getCheckInQR() {
+        return getQRResponse("qr_storage/checkin.png");
+    }
 
     @Override
-    public ApiResponse<?> generateQR() {
-        try {
-//            generateQRDaily();
-            LocalDate today = LocalDate.now();
-            LocalDateTime now = LocalDateTime.now();
-
-            // Determine QR type based on current time
-            boolean isAfter4PM = now.getHour() >= 16;
-            String qrType = isAfter4PM ? "checkout" : "checkin";
-
-            // Construct the file path for the QR code
-            String filePath = String.format("qr_storage/%s.png", qrType);
-            File qrFile = new File(filePath);
-
-            // Validate that the QR code exists
-            if (!qrFile.exists()) {
-                throw new FileNotFoundException("QR code file not found: " + filePath);
-            }
-
-            // Read the image file into a byte array
-            byte[] image = Files.readAllBytes(qrFile.toPath());
-            String base64Image = Base64.getEncoder().encodeToString(image);
-
-            // Return the QR code as a success response
-            return ResponseUtil.getSuccessResponse(base64Image, "QR Code generated successfully.");
-
-        } catch (Exception e) {
-            return ResponseUtil.getErrorResponse(e, HttpStatus.CONFLICT);
-        }
+    public ResponseEntity<?> getCheckOutQR() {
+        return getQRResponse("qr_storage/checkout.png");
     }
 
     @Override
@@ -220,5 +201,38 @@ public class AttendanceServiceImpl implements AttendanceService {
         qrData.setDate(date);
         qrData.setQr_url(filePath);
         qrRepository.save(qrData);
+    }
+
+    private ResponseEntity<?> getQRResponse(String filePath) {
+        try {
+            // Construct the file object for the QR code
+            File qrFile = new File(filePath);
+
+            // Validate that the QR code exists
+            if (!qrFile.exists()) {
+                throw new FileNotFoundException("QR code file not found: " + filePath);
+            }
+
+            // Prepare the file as a resource
+            Resource fileResource = new FileSystemResource(qrFile);
+
+            // Set the HTTP headers for image content
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_PNG);
+            headers.setContentLength(qrFile.length());
+            headers.setContentDispositionFormData("attachment", qrFile.getName());
+
+            // Return the image file in the response
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(fileResource);
+
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("QR code file not found: " + filePath);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error generating QR code: " + e.getMessage());
+        }
     }
 }
