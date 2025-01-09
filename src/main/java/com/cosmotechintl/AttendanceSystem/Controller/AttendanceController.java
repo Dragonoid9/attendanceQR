@@ -15,11 +15,18 @@ public class AttendanceController {
     @Autowired
     private AttendanceService attendanceService;
 
-    @GetMapping("/getQR")
-    public ResponseEntity<?> getAttendance() {
+    @GetMapping("/getCheckInQR")
+    public ResponseEntity<?> getCheckInAttendanceQR() {
 
-        return attendanceService.getQR();
+        return attendanceService.getCheckInQR();
     }
+
+    @GetMapping("/getCheckOutQR")
+    public ResponseEntity<?> getCheckOutAttendanceQR() {
+
+        return attendanceService.getCheckOutQR();
+    }
+
     @PostMapping("/checkIn")
     public ApiResponse<?> checkInUser(@RequestBody QRAttendance attendance) {
 
