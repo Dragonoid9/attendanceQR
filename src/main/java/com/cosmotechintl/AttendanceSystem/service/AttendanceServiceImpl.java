@@ -11,9 +11,15 @@ import com.cosmotechintl.AttendanceSystem.repository.QRRepository;
 import com.cosmotechintl.AttendanceSystem.repository.UserInfoRepository;
 import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -107,7 +113,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     @Override
-    public ApiResponse<?> generateQR() {
+    public ResponseEntity<?> getQR() {
         try {
 //            generateQRDaily();
             LocalDate today = LocalDate.now();
@@ -126,15 +132,26 @@ public class AttendanceServiceImpl implements AttendanceService {
                 throw new FileNotFoundException("QR code file not found: " + filePath);
             }
 
-            // Read the image file into a byte array
-            byte[] image = Files.readAllBytes(qrFile.toPath());
-            String base64Image = Base64.getEncoder().encodeToString(image);
+            // Prepare the file as a resource
+            Resource fileResource = new FileSystemResource(qrFile);
 
-            // Return the QR code as a success response
-            return ResponseUtil.getSuccessResponse(base64Image, "QR Code generated successfully.");
+            // Set the HTTP headers for image content
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_PNG);
+            headers.setContentLength(qrFile.length());
+            headers.setContentDispositionFormData("attachment", qrFile.getName());
 
+            // Return the image file in the response
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(fileResource);
+
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("QR code file not found.");
         } catch (Exception e) {
-            return ResponseUtil.getErrorResponse(e, HttpStatus.CONFLICT);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error generating QR code: " + e.getMessage());
         }
     }
 

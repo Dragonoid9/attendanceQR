@@ -5,6 +5,7 @@ import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.QRAttendance;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.service.AttendanceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,9 +16,9 @@ public class AttendanceController {
     private AttendanceService attendanceService;
 
     @GetMapping("/getQR")
-    public ApiResponse<?> getAttendance() {
+    public ResponseEntity<?> getAttendance() {
 
-        return attendanceService.generateQR();
+        return attendanceService.getQR();
     }
     @PostMapping("/checkIn")
     public ApiResponse<?> checkInUser(@RequestBody QRAttendance attendance) {
