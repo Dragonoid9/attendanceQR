@@ -6,9 +6,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface AttendanceService {
 
-    ResponseEntity<?> getCheckInQR();
-
-    ResponseEntity<?> getCheckOutQR();
+    ApiResponse<?> getAttendanceQR();
 
     ApiResponse<?> checkIn(QRAttendance attendance);
 

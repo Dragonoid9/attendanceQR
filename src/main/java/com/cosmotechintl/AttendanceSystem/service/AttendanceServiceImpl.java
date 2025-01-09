@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -63,12 +64,12 @@ public class AttendanceServiceImpl implements AttendanceService {
             // Generate and save check-in QR code
             String checkInFilePath = storageDirectory + "checkin.png";
             qrCodeGenerator.saveQRCodeImage(qrCodeDataCheckIn, checkInFilePath);
-            saveQRMetadata(token,date,checkInFilePath);
+            saveQRMetadata(token, date, checkInFilePath);
 
             // Generate and save check-out QR code
             String checkOutFilePath = storageDirectory + "checkout.png";
             qrCodeGenerator.saveQRCodeImage(qrCodeDataCheckOut, checkOutFilePath);
-            saveQRMetadata(token,date,checkOutFilePath);
+            saveQRMetadata(token, date, checkOutFilePath);
         } catch (Exception e) {
             // Log the exception
             System.err.println("Error generating daily QR codes: " + e.getMessage());
@@ -76,8 +77,8 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
     }
 
-    @Scheduled(cron ="59 59 23 * * *")
-    private void deleteDailyQR(){
+    @Scheduled(cron = "59 59 23 * * *")
+    private void deleteDailyQR() {
         try {
             // Define the directory where QR codes are stored
             String storageDirectory = "qr_storage/";
@@ -109,20 +110,42 @@ public class AttendanceServiceImpl implements AttendanceService {
             System.out.println("Error occurred while deleting daily QR codes: " + e.getMessage());
         }
     }
-    @Override
-    public ResponseEntity<?> getCheckInQR() {
-        return getQRResponse("qr_storage/checkin.png");
-    }
 
     @Override
-    public ResponseEntity<?> getCheckOutQR() {
-        return getQRResponse("qr_storage/checkout.png");
+    public ApiResponse<?> getAttendanceQR() {
+        try {
+            // Retrieve and validate the file paths for both QR codes
+            String checkInPath = validateQRFilePath("qr_storage/checkin.png");
+            String checkOutPath = validateQRFilePath("qr_storage/checkout.png");
+
+            // Prepare the response data
+            Map<String, String> paths = Map.of(
+                    "checkInQR", checkInPath,
+                    "checkOutQR", checkOutPath
+            );
+            return ResponseUtil.getSuccessResponse(paths, "QR Code generated successfully.");
+        } catch (Exception e) {
+            return ResponseUtil.getErrorResponse(e, HttpStatus.CONFLICT);
+        }
+    }
+
+    // Helper method to validate and retrieve the file path
+    private String validateQRFilePath(String filePath) throws ResourceNotFoundException {
+        File qrFile = new File(filePath);
+
+        // Check if the file exists
+        if (!qrFile.exists()) {
+            throw new ResourceNotFoundException("QR code file not found: " + filePath);
+        }
+
+        // Return the relative path of the file
+        return filePath;
     }
 
     @Override
     public ApiResponse<?> checkIn(QRAttendance qrattendance) {
-        String accessToken =qrattendance.getAccessToken();
-        String token =qrattendance.getToken();
+        String accessToken = qrattendance.getAccessToken();
+        String token = qrattendance.getToken();
         try {
             // Step 1: Validate token and expiration
             UserInfo userInfo = validateAccessTokenAndUUIDToken(accessToken, token);
@@ -149,8 +172,8 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public ApiResponse<?> checkOut(QRAttendance qrattendance) {
-        String accessToken =qrattendance.getAccessToken();
-        String token =qrattendance.getToken();
+        String accessToken = qrattendance.getAccessToken();
+        String token = qrattendance.getToken();
         try {
             // Step 1: Validate token and expiration
             UserInfo userInfo = validateAccessTokenAndUUIDToken(accessToken, token);
@@ -189,9 +212,10 @@ public class AttendanceServiceImpl implements AttendanceService {
         UserInfo userinfo = userInfoRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         LocalDate today = LocalDate.now();
         // Check if the QR code is expired
-        boolean existQr = qrRepository.existsByTokenAndDate(token,today);
-        if(!existQr) {
-        throw new ResourceNotFoundException("QR token is not valid.");}
+        boolean existQr = qrRepository.existsByTokenAndDate(token, today);
+        if (!existQr) {
+            throw new ResourceNotFoundException("QR token is not valid.");
+        }
         return userinfo;
     }
 
@@ -201,38 +225,5 @@ public class AttendanceServiceImpl implements AttendanceService {
         qrData.setDate(date);
         qrData.setQr_url(filePath);
         qrRepository.save(qrData);
-    }
-
-    private ResponseEntity<?> getQRResponse(String filePath) {
-        try {
-            // Construct the file object for the QR code
-            File qrFile = new File(filePath);
-
-            // Validate that the QR code exists
-            if (!qrFile.exists()) {
-                throw new FileNotFoundException("QR code file not found: " + filePath);
-            }
-
-            // Prepare the file as a resource
-            Resource fileResource = new FileSystemResource(qrFile);
-
-            // Set the HTTP headers for image content
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.IMAGE_PNG);
-            headers.setContentLength(qrFile.length());
-            headers.setContentDispositionFormData("attachment", qrFile.getName());
-
-            // Return the image file in the response
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(fileResource);
-
-        } catch (FileNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("QR code file not found: " + filePath);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error generating QR code: " + e.getMessage());
-        }
     }
 }
