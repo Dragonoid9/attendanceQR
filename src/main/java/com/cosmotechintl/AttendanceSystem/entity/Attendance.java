@@ -33,7 +33,5 @@ public class Attendance {
     @Column(name = "date", nullable = false)
     private LocalDate date;
 
-//    @Column(name = "qr_code", nullable = false, length = 255)
-//    private String qrCode;
 }
 

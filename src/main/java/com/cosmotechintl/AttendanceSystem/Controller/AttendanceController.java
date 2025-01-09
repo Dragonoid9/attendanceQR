@@ -1,6 +1,7 @@
 package com.cosmotechintl.AttendanceSystem.Controller;
 
 
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.QRAttendance;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.service.AttendanceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +19,13 @@ public class AttendanceController {
 
         return attendanceService.generateQR();
     }
-    @GetMapping("/checkIn")
-    public ApiResponse<?> checkInUser(@RequestParam String accessToken,@RequestParam String expiration){
+    @PostMapping("/checkIn")
+    public ApiResponse<?> checkInUser(@RequestBody QRAttendance attendance) {
 
-        return attendanceService.checkIn(accessToken, expiration);
+        return attendanceService.checkIn(attendance);
     }
-    @GetMapping("/checkOut")
-    public ApiResponse<?> checkOutUser(@RequestParam String accessToken,@RequestParam String expiration){
-        return attendanceService.checkOut(accessToken, expiration);
+    @PostMapping("/checkOut")
+    public ApiResponse<?> checkOutUser(@RequestBody QRAttendance attendance ) {
+        return attendanceService.checkOut(attendance);
     }
 }
