@@ -20,12 +20,16 @@ public class QRCodeGenerator {
 
     public String generateQRCodeData(String apiUrl, String token) {
         try {
+
+            Map<String, String> qrData = Map.of(
+                    "baseUrl", BASE_URL,
+                    "apiUrl", apiUrl,
+                    "token", token
+            );
             // Encode the token as JSON
             ObjectMapper objectMapper = new ObjectMapper();
-            String tokenJson = objectMapper.writeValueAsString(Map.of("token", token));
+            return objectMapper.writeValueAsString(qrData);
 
-            // Construct the complete URL with the JSON token
-            return String.format("%s/%s?data=%s", BASE_URL, apiUrl, tokenJson);
         } catch (Exception e) {
             throw new RuntimeException("Error generating QR code data", e);
         }

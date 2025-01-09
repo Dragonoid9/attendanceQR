@@ -20,9 +20,12 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: none
-
+  web:
+    resources:
+      static-locations: file:/D:/CosmoIntl Intern Period ko Kaam Haru/2025-01-01/AttendanceSystem/
 #Jwt
 jwt:
     secret: ${secretKey}
     accessexpiration: ${accessExpire}
     refreshexpiration: ${refreshExpire}
+
