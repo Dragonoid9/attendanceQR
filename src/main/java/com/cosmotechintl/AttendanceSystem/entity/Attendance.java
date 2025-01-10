@@ -33,5 +33,8 @@ public class Attendance {
     @Column(name = "date", nullable = false)
     private LocalDate date;
 
+    @Column(name = "work_type", nullable = false)
+    private String workType;
+
 }
 

@@ -11,4 +11,5 @@ import lombok.*;
 public class QRAttendance {
     String accessToken;
     String token;
+    String workType;
 }

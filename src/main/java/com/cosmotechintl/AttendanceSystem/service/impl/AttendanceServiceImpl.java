@@ -143,6 +143,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     public ApiResponse<?> checkIn(QRAttendance qrattendance) {
         String accessToken = qrattendance.getAccessToken();
         String token = qrattendance.getToken();
+        String workType = qrattendance.getWorkType();
         try {
             // Step 1: Validate token and expiration
             UserInfo userInfo = validateAccessTokenAndUUIDToken(accessToken, token);
@@ -156,6 +157,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                     .checkin(LocalDateTime.now())
                     .userInfo(userInfo)
                     .date(today)
+                    .workType(workType)
                     .build();
 
             attendanceRepository.save(attendanceCheckIn);

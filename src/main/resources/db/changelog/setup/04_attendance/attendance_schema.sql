@@ -13,5 +13,6 @@ Create table attendance (
                             checkin DATETIME NOT NULL,  -- Track check-in time
                             checkout DATETIME,         -- Track check-out time (can be NULL if not checked out yet)
                             date DATE NOT NULL,        -- Date of attendance (this is the specific day)
+                            work_type VARCHAR(255) NOT NULL,
                             FOREIGN KEY (user_id) REFERENCES users(id) -- Assuming you have a 'users' table where the 'user_id' is from
 );
