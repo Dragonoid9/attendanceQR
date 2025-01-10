@@ -1,9 +1,10 @@
-package com.cosmotechintl.AttendanceSystem.service;
+package com.cosmotechintl.AttendanceSystem.service.impl;
 
 import com.cosmotechintl.AttendanceSystem.exception.TokenValidationException;
 import com.cosmotechintl.AttendanceSystem.repository.AuthTokenRepository;
 import com.cosmotechintl.AttendanceSystem.repository.UserInfoRepository;
 import com.cosmotechintl.AttendanceSystem.repository.UserRoleRepository;
+import com.cosmotechintl.AttendanceSystem.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -74,14 +75,14 @@ public class JwtServiceImpl implements JwtService {
     }
 
     public boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        return !extractExpiration(token).before(new Date());
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         String accessTokenValid = authTokenRepository.existByAccessTokenAndIsActiveFalse(token)
                 .orElseThrow(()-> new TokenValidationException("Token is not Valid."));
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        return (username.equals(userDetails.getUsername()) && isTokenExpired(token));
     }
 
     public boolean validateRefreshToken(String token){
@@ -89,7 +90,7 @@ public class JwtServiceImpl implements JwtService {
         String refreshTokenValid =authTokenRepository.existByRefreshTokenAndIsActiveFalse(token)
                 .orElseThrow(()-> new TokenValidationException(("Refresh Token is not Valid.")));
 
-        return (username !=null && !isTokenExpired(token));
+        return (username !=null && isTokenExpired(token));
     }
 
     public String generateToken(String username, List<String> roles) {

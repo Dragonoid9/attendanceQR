@@ -1,4 +1,4 @@
-package com.cosmotechintl.AttendanceSystem.service;
+package com.cosmotechintl.AttendanceSystem.service.impl;
 
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.QRAttendance;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
@@ -9,19 +9,16 @@ import com.cosmotechintl.AttendanceSystem.exception.ResourceNotFoundException;
 import com.cosmotechintl.AttendanceSystem.repository.AttendanceRepository;
 import com.cosmotechintl.AttendanceSystem.repository.QRRepository;
 import com.cosmotechintl.AttendanceSystem.repository.UserInfoRepository;
+import com.cosmotechintl.AttendanceSystem.service.AttendanceService;
+import com.cosmotechintl.AttendanceSystem.service.JwtService;
+import com.cosmotechintl.AttendanceSystem.service.QRCodeGenerator;
 import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;

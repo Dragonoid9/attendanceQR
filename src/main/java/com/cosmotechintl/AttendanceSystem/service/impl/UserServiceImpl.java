@@ -1,4 +1,4 @@
-package com.cosmotechintl.AttendanceSystem.service;
+package com.cosmotechintl.AttendanceSystem.service.impl;
 
 
 
@@ -11,6 +11,7 @@ import com.cosmotechintl.AttendanceSystem.exception.ResourceAlreadyExistsExcepti
 import com.cosmotechintl.AttendanceSystem.exception.ResourceNotFoundException;
 import com.cosmotechintl.AttendanceSystem.repository.UserInfoRepository;
 import com.cosmotechintl.AttendanceSystem.repository.UserRoleRepository;
+import com.cosmotechintl.AttendanceSystem.service.UserService;
 import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

@@ -1,4 +1,4 @@
-package com.cosmotechintl.AttendanceSystem.service;
+package com.cosmotechintl.AttendanceSystem.service.impl;
 
 
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.LoginRequestDTO;
@@ -10,6 +10,8 @@ import com.cosmotechintl.AttendanceSystem.entity.UserInfo;
 import com.cosmotechintl.AttendanceSystem.exception.ResourceNotFoundException;
 import com.cosmotechintl.AttendanceSystem.repository.AuthTokenRepository;
 import com.cosmotechintl.AttendanceSystem.repository.UserInfoRepository;
+import com.cosmotechintl.AttendanceSystem.service.AuthService;
+import com.cosmotechintl.AttendanceSystem.service.JwtService;
 import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +55,6 @@ public class AuthServiceImp implements AuthService {
 
             String accessToken = jwtService.generateToken(loginRequestDTO.getUsername(), roles);
             String refreshToken = jwtService.generateRefreshToken(loginRequestDTO.getUsername());
-            log.info("Access Token: {} Refresh Token: {}", accessToken, refreshToken);
             AuthToken authToken = AuthToken.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
@@ -61,9 +62,7 @@ public class AuthServiceImp implements AuthService {
                     .isActive(false)
                     .userInfo((UserInfo)userDetails)
                     .build();
-            log.info("Something after the builder"+authToken.toString());
             authTokenRepository.save(authToken);
-            log.info("After the repository saved of the authToken.");
             LoginResponseDTO loginResponseDTO = LoginResponseDTO.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
@@ -130,11 +129,9 @@ public class AuthServiceImp implements AuthService {
             if (accessToken == null || accessToken.trim().isEmpty()) {
                 return ResponseUtil.getValidationErrorResponse("Access token is missing or invalid.");
             }
-            log.info("Before passing the logout user for the extraction of username {}", accessToken);
             // Extract username and device ID from the token
             String username = jwtService.extractUsername(accessToken);
 
-            log.info("After the extranction of username {}", username);
             // Validate token and device ID
             AuthToken authToken = authTokenRepository.findByAccessToken(accessToken)
                     .orElseThrow(() -> new ResourceNotFoundException("Token not found or already logged out."));
@@ -152,7 +149,6 @@ public class AuthServiceImp implements AuthService {
     public ApiResponse<?> getAllRefreshTokens(){
         log.info("Getting all refresh tokens.");
        List<AuthToken> authTokens= authTokenRepository.findAll();
-        log.info("Something after the repository saved of the authTokens. {}",authTokens);
        List<AuthResponseDTO> authResponses =new ArrayList<>();;
        for (AuthToken authToken : authTokens) {
            AuthResponseDTO authResponseDTO = new AuthResponseDTO();
@@ -160,7 +156,6 @@ public class AuthServiceImp implements AuthService {
            authResponseDTO.setRefreshToken(authToken.getRefreshToken());
            authResponses.add(authResponseDTO);
        }
-       log.info("Before response util after the repository and foreach of the authTokens. {}",authResponses);
         return ResponseUtil.getSuccessResponse(authResponses, "Successfully retrieved all refresh tokens.");
     }
 }
