@@ -20,13 +20,13 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER ADMIN')")
     @PostMapping("/addUser")
     public ApiResponse<?> saveUser(@RequestBody UserRequestDTO userRequestDTO) {
            return userService.saveUser(userRequestDTO);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER ADMIN')")
     @PostMapping("/addRole")
     public ApiResponse<?> addRole(@RequestBody RoleRequestDTO roleRequestDTO) {
         return userService.addRole(roleRequestDTO);

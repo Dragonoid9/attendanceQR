@@ -5,6 +5,7 @@ import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.QRAttendance;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.service.AttendanceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,5 +29,24 @@ public class AttendanceController {
     @PostMapping("/checkOut")
     public ApiResponse<?> checkOutUser(@RequestBody QRAttendance attendance ) {
         return attendanceService.checkOut(attendance);
+    }
+
+
+    @PreAuthorize("hasRole('SUPER ADMIN')")
+    @GetMapping("/userAttendanceByMonth")
+    public ApiResponse<?> getUserAttendanceByMonth(
+            @RequestParam Long userId,
+            @RequestParam int month,
+            @RequestParam int year) {
+        return attendanceService.getAttendanceByMonth(userId, month, year);
+    }
+
+    @PreAuthorize("hasAnyRole('Employee', 'Intern')")
+    @GetMapping("/ownAttendanceByMonth")
+    public ApiResponse<?> getOwnAttendanceByMonth(
+            @RequestParam int month,
+            @RequestParam int year
+    ){
+        return attendanceService.getOwnAttendanceByMonth(month,year);
     }
 }

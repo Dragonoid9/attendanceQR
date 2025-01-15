@@ -2,6 +2,7 @@ package com.cosmotechintl.AttendanceSystem.service.impl;
 
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.QRAttendance;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
+import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.MyAttendanceResponseDto;
 import com.cosmotechintl.AttendanceSystem.entity.Attendance;
 import com.cosmotechintl.AttendanceSystem.entity.QR;
 import com.cosmotechintl.AttendanceSystem.entity.UserInfo;
@@ -16,6 +17,10 @@ import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -23,28 +28,32 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class AttendanceServiceImpl implements AttendanceService {
 
 
-    @Autowired
-    private AttendanceRepository attendanceRepository;
+    private final AttendanceRepository attendanceRepository;
 
-    @Autowired
-    private JwtService jwtService;
+    private final JwtService jwtService;
 
-    @Autowired
-    private QRCodeGenerator qrCodeGenerator;
-    @Autowired
-    private UserInfoRepository userInfoRepository;
+    private final QRCodeGenerator qrCodeGenerator;
 
-    @Autowired
-    private QRRepository qrRepository;
+    private final UserInfoRepository userInfoRepository;
+    private final QRRepository qrRepository;
 
+    AttendanceServiceImpl(AttendanceRepository attendanceRepository,
+                          JwtService jwtService,
+                          QRCodeGenerator qrCodeGenerator,
+                          UserInfoRepository userInfoRepository,
+                          QRRepository qrRepository) {
+        this.attendanceRepository = attendanceRepository;
+        this.jwtService = jwtService;
+        this.qrCodeGenerator = qrCodeGenerator;
+        this.userInfoRepository = userInfoRepository;
+        this.qrRepository = qrRepository;
+    }
 
     @Scheduled(cron = "0 0 0 * * *")
     private void generateQRDaily() {
@@ -224,5 +233,59 @@ public class AttendanceServiceImpl implements AttendanceService {
         qrData.setDate(date);
         qrData.setQr_url(filePath);
         qrRepository.save(qrData);
+    }
+
+    public ApiResponse<?> getAttendanceByMonth(Long userId, int month, int year){
+
+        List<Attendance> attendances = attendanceRepository.findAllByUserIdAndMonthAndYear(userId, month, year);
+
+        List<MyAttendanceResponseDto> attendanceResponses = new ArrayList<>();
+
+        for(Attendance attendance : attendances){
+            MyAttendanceResponseDto myAttendanceResponseDto = new MyAttendanceResponseDto();
+            myAttendanceResponseDto.setCheckIn(attendance.getCheckin());
+            myAttendanceResponseDto.setCheckOut(attendance.getCheckout());
+            myAttendanceResponseDto.setDate(attendance.getDate());
+            myAttendanceResponseDto.setWorkType(attendance.getWorkType());
+
+            attendanceResponses.add(myAttendanceResponseDto);
+        }
+
+        return ResponseUtil.getSuccessResponse(attendanceResponses,"Successfully Fetched Attendance.");
+    }
+
+    public ApiResponse<?> getOwnAttendanceByMonth(int month, int year){
+
+        Long userId =getCurrentUserId();
+        List<Attendance> attendances = attendanceRepository.findAllByUserIdAndMonthAndYear(userId, month, year);
+        List<MyAttendanceResponseDto> attendanceResponses = new ArrayList<>();
+
+        for(Attendance attendance : attendances){
+            MyAttendanceResponseDto myAttendanceResponseDto = new MyAttendanceResponseDto();
+            myAttendanceResponseDto.setCheckIn(attendance.getCheckin());
+            myAttendanceResponseDto.setCheckOut(attendance.getCheckout());
+            myAttendanceResponseDto.setDate(attendance.getDate());
+            myAttendanceResponseDto.setWorkType(attendance.getWorkType());
+
+            attendanceResponses.add(myAttendanceResponseDto);
+        }
+
+        return ResponseUtil.getSuccessResponse(attendanceResponses,"Successfully Fetched Attendance.");
+    }
+
+    private Long getCurrentUserId() {
+        // Get the authentication from the SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Get the principal, which will be the UserDetails object
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) principal;
+            String username = userDetails.getUsername();
+            UserInfo userInfo = userInfoRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            return userInfo.getId();
+        }
+        throw new IllegalStateException("User is not authenticated.");
     }
 }
