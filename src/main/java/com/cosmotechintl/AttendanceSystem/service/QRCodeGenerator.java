@@ -16,7 +16,7 @@ import javax.imageio.ImageIO;
 @Component
 public class QRCodeGenerator {
 
-    private static final String BASE_URL = "localhost:8080/attendance";
+    private static final String BASE_URL = "192.168.1.89:8080/attendance";
 
     public String generateQRCodeData(String apiUrl, String token) {
         try {

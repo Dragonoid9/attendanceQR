@@ -126,6 +126,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public ApiResponse<?> getAttendanceQR() {
+
         try {
             // Retrieve and validate the file paths for both QR codes
             String checkInPath = validateQRFilePath("qr_storage/checkin.png");
@@ -160,6 +161,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         String accessToken = qrattendance.getAccessToken();
         String token = qrattendance.getToken();
         String workType = qrattendance.getWorkType();
+
         try {
             // Step 1: Validate token and expiration
             UserInfo userInfo = validateAccessTokenAndUUIDToken(accessToken, token);
