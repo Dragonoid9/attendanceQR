@@ -1,5 +1,6 @@
 package com.cosmotechintl.AttendanceSystem.service;
 
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceRequestDto;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.QRAttendance;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 
@@ -11,7 +12,7 @@ public interface AttendanceService {
 
     ApiResponse<?> checkOut(QRAttendance attendance);
 
-    ApiResponse<?> getAttendanceByMonth(Long userId, int month, int year);
+    ApiResponse<?> getAttendance(AttendanceRequestDto attendanceRequestDto);
 
     ApiResponse<?> getOwnAttendanceByMonth(int month, int year);
 }

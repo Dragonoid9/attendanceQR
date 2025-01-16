@@ -1,8 +1,10 @@
 package com.cosmotechintl.AttendanceSystem.Controller;
 
 
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceRequestDto;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.QRAttendance;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
+import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.AttendanceResponseDto;
 import com.cosmotechintl.AttendanceSystem.service.AttendanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,12 +35,9 @@ public class AttendanceController {
 
 
     @PreAuthorize("hasRole('SUPER ADMIN')")
-    @GetMapping("/userAttendanceByMonth")
-    public ApiResponse<?> getUserAttendanceByMonth(
-            @RequestParam Long userId,
-            @RequestParam int month,
-            @RequestParam int year) {
-        return attendanceService.getAttendanceByMonth(userId, month, year);
+    @PostMapping("/userAttendance")
+    public ApiResponse<?> getUserAttendance(@RequestBody AttendanceRequestDto attendanceRequestDto) {
+        return attendanceService.getAttendance(attendanceRequestDto);
     }
 
     @PreAuthorize("hasAnyRole('Employee', 'Intern')")

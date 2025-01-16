@@ -1,12 +1,16 @@
 package com.cosmotechintl.AttendanceSystem.service.impl;
 
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceRequestDto;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.QRAttendance;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
+import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.AttendanceResponseDto;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.MyAttendanceResponseDto;
+import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.PagedResponseDto;
 import com.cosmotechintl.AttendanceSystem.entity.Attendance;
 import com.cosmotechintl.AttendanceSystem.entity.QR;
 import com.cosmotechintl.AttendanceSystem.entity.UserInfo;
 import com.cosmotechintl.AttendanceSystem.exception.ResourceNotFoundException;
+import com.cosmotechintl.AttendanceSystem.mapper.AttendanceCustomRepository;
 import com.cosmotechintl.AttendanceSystem.repository.AttendanceRepository;
 import com.cosmotechintl.AttendanceSystem.repository.QRRepository;
 import com.cosmotechintl.AttendanceSystem.repository.UserInfoRepository;
@@ -14,10 +18,9 @@ import com.cosmotechintl.AttendanceSystem.service.AttendanceService;
 import com.cosmotechintl.AttendanceSystem.service.JwtService;
 import com.cosmotechintl.AttendanceSystem.service.QRCodeGenerator;
 import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
+@Slf4j
 public class AttendanceServiceImpl implements AttendanceService {
 
 
@@ -42,17 +46,20 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     private final UserInfoRepository userInfoRepository;
     private final QRRepository qrRepository;
+    private final AttendanceCustomRepository attendanceCustomRepository;
 
     AttendanceServiceImpl(AttendanceRepository attendanceRepository,
                           JwtService jwtService,
                           QRCodeGenerator qrCodeGenerator,
                           UserInfoRepository userInfoRepository,
-                          QRRepository qrRepository) {
+                          QRRepository qrRepository,
+                          AttendanceCustomRepository attendanceCustomRepository) {
         this.attendanceRepository = attendanceRepository;
         this.jwtService = jwtService;
         this.qrCodeGenerator = qrCodeGenerator;
         this.userInfoRepository = userInfoRepository;
         this.qrRepository = qrRepository;
+        this.attendanceCustomRepository = attendanceCustomRepository;
     }
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -235,23 +242,58 @@ public class AttendanceServiceImpl implements AttendanceService {
         qrRepository.save(qrData);
     }
 
-    public ApiResponse<?> getAttendanceByMonth(Long userId, int month, int year){
+    public ApiResponse<?> getAttendance(AttendanceRequestDto attendanceRequestDto){
 
-        List<Attendance> attendances = attendanceRepository.findAllByUserIdAndMonthAndYear(userId, month, year);
+        Long userId = attendanceRequestDto.getUserId();
+        Integer month = attendanceRequestDto.getMonth();
+        Integer year = attendanceRequestDto.getYear();
+        String workType = attendanceRequestDto.getWorkType();
+        String sortBy = attendanceRequestDto.getSortBy();
+        String sortDirection = attendanceRequestDto.getSortDirection();
+        int page = attendanceRequestDto.getPage();
+        int size = attendanceRequestDto.getSize();
 
-        List<MyAttendanceResponseDto> attendanceResponses = new ArrayList<>();
+        // Set default values to null if they are 0 or not provided
+        if (userId != null && userId == 0) userId = null;
+        if (month != null && month == 0) month = null;
+        if (year != null && year == 0) year = null;
+        if (workType != null && workType.equals("string")) workType = null;
+        if (sortBy != null && sortBy.equals("string")) sortBy = null;
+        if (sortDirection != null && sortDirection.equals("string")) sortDirection = null;
+        // If page or size is not provided, set them to a default value
+        if (size == 0) size = 10;
 
-        for(Attendance attendance : attendances){
-            MyAttendanceResponseDto myAttendanceResponseDto = new MyAttendanceResponseDto();
-            myAttendanceResponseDto.setCheckIn(attendance.getCheckin());
-            myAttendanceResponseDto.setCheckOut(attendance.getCheckout());
-            myAttendanceResponseDto.setDate(attendance.getDate());
-            myAttendanceResponseDto.setWorkType(attendance.getWorkType());
+        int offset = page * size;
+        List<AttendanceResponseDto> records = attendanceCustomRepository.findAttendanceByCriteria(
+                userId, month, year, workType, sortBy, sortDirection, size, offset);
 
-            attendanceResponses.add(myAttendanceResponseDto);
-        }
+        // Calculate pagination metadata (totalElements and totalPages)
+        long totalElements = attendanceCustomRepository.countAttendanceByCriteria(userId, month, year, workType);
+        int totalPages = (int) Math.ceil((double) totalElements / size);
 
-        return ResponseUtil.getSuccessResponse(attendanceResponses,"Successfully Fetched Attendance.");
+        // Return paged response
+        PagedResponseDto<?> pagedResponseDto = PagedResponseDto.<AttendanceResponseDto>builder()
+                .content(records)
+                .page(page)
+                .size(size)
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .last(page == totalPages - 1)
+                .build();
+//        List<MyAttendanceResponseDto> attendanceResponses = new ArrayList<>();
+//
+//        for(Attendance attendance : attendances){
+//            log.info(attendance.getWorkType());
+//            MyAttendanceResponseDto myAttendanceResponseDto = new MyAttendanceResponseDto();
+//            myAttendanceResponseDto.setCheckIn(attendance.getCheckin());
+//            myAttendanceResponseDto.setCheckOut(attendance.getCheckout());
+//            myAttendanceResponseDto.setDate(attendance.getDate());
+//            myAttendanceResponseDto.setWorkType(attendance.getWorkType());
+
+//            attendanceResponses.add(myAttendanceResponseDto);
+//        }
+
+        return ResponseUtil.getSuccessResponse(pagedResponseDto,"Successfully Fetched Attendance.");
     }
 
     public ApiResponse<?> getOwnAttendanceByMonth(int month, int year){
