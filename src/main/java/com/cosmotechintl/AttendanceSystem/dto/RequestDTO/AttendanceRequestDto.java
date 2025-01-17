@@ -9,13 +9,18 @@ import lombok.*;
 @Builder
 public class AttendanceRequestDto {
 
+    private String username;
     private Long userId;
     private Integer month;
     private Integer year;
     private String workType;
-    private String sortBy = "date";  // Default value is "date"
+    @Builder.Default
+    private String sortBy = "date";
+    @Builder.Default// Default value is "date"
     private String sortDirection = "ASC";  // Default value is "ASC"
+    @Builder.Default
     private int page = 0;  // Default value is 0
+    @Builder.Default
     private int size = 10;  // Default value is 10
 
 }

@@ -66,38 +66,32 @@ public interface AttendanceCustomRepository {
                                    @Param("work_type") String work_type);
 
 
-//    @Select("<script>" +
-//            "SELECT a.id, a.user_id AS userId, a.checkin, a.checkout, a.date, a.work_type AS workType, u.username" +
-//            " FROM Attendance a" +
-//            " JOIN users u ON a.user_id = u.id" +
-//            " WHERE 1=1" +
-//            "<if test='user_id != null and user_id != \"\"'>" +
-//            " AND a.user_id = #{user_id}" +
-//            "</if>" +
-//            "<if test='month != null'>" +
-//            " AND MONTH(a.date) = #{month}" +
-//            "</if>" +
-//            "<if test='year != null'>" +
-//            " AND YEAR(a.date) = #{year}" +
-//            "</if>" +
-//            "<if test='work_type != null and work_type != \"\"'>" +
-//            " AND a.work_type = #{work_type}" +
-//            "</if>" +
-//            "<if test='sortBy != null and sortBy != \"\"'>" +
-//            " ORDER BY ${sortBy}" +
-//            " <if test='sortOrder != null and sortOrder == \"desc\"'>DESC</if>" +
-//            " <if test='sortOrder != null and sortOrder == \"asc\"'>ASC</if>" +
-//            "</if>" +
-//            " LIMIT #{pageSize} OFFSET #{offset}" +
-//            "</script>")
-//    List<AttendanceResponseDto> findAttendanceByCriteria(
-//            @Param("user_id") Long user_id,
-//            @Param("month") Integer month,
-//            @Param("year") Integer year,
-//            @Param("work_type") String work_type,
-//            @Param("sortBy") String sortBy,
-//            @Param("sortOrder") String sortOrder,
-//            @Param("pageSize") Integer pageSize,
-//            @Param("offset") Integer offset
-//    );
+
+    @Select("<script>" +
+            "SELECT   u.username As username,a.checkin, a.checkout, a.date, a.work_type AS workType " +
+            "FROM Attendance a " +
+            "JOIN users u ON a.user_id = u.id " +
+            "WHERE 1=1 " +
+            "<if test='username != null and username != \"\"'>" +
+            " AND u.username = #{username} " +
+            "</if>" +
+            "<if test='month != null'>" +
+            " AND MONTH(a.date) = #{month} " +
+            "</if>" +
+            "<if test='year != null'>" +
+            " AND YEAR(a.date) = #{year} " +
+            "</if>" +
+            "<if test='work_type != null and work_type != \"\"'>" +
+            " AND a.work_type = #{work_type} " +
+            "</if>" +
+            "<if test='sortBy != null and sortDirection != null'>" +
+            " ORDER BY ${sortBy} ${sortDirection} " +
+            "</if>" +
+            "</script>")
+    List<AttendanceResponseDto> findAttendanceByCriteriaExcel(@Param("username") String username,
+                                                         @Param("month") Integer month,
+                                                         @Param("year") Integer year,
+                                                         @Param("work_type") String work_type,
+                                                         @Param("sortBy") String sortBy,
+                                                         @Param("sortDirection") String sortDirection);
 }
