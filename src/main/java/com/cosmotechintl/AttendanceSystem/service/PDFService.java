@@ -3,7 +3,7 @@ package com.cosmotechintl.AttendanceSystem.service;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceExportRequestDto;
 import org.springframework.http.ResponseEntity;
 
-public interface ExcelService {
+public interface PDFService {
 
-    ResponseEntity<?>  attendanceExportToExcel(AttendanceExportRequestDto attendanceExportRequestDto);
+    ResponseEntity<?>  attendanceExportToPDF(AttendanceExportRequestDto attendanceRequestDto);
 }

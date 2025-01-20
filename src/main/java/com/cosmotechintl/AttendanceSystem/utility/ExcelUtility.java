@@ -1,6 +1,5 @@
 package com.cosmotechintl.AttendanceSystem.utility;
 
-import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.AttendanceResponseDto;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -12,7 +11,7 @@ import java.util.List;
 public class ExcelUtility {
 
 
-    public static ByteArrayInputStream dataToExcel(List<AttendanceResponseDto> attendances, String sheetName, String[] header) {
+    public static ByteArrayInputStream dataToExcel(String sheetName, String[] header,List<List<Object>> data) {
 
         try(Workbook workbook = new XSSFWorkbook();
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();){
@@ -20,22 +19,39 @@ public class ExcelUtility {
             Sheet sheet = workbook.createSheet(sheetName);
             // Create header row
             Row headerRow = sheet.createRow(0);
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true); // Set header font to bold
+            headerFont.setFontHeightInPoints((short) 14); // Set header font size
+
+            CellStyle headerCellStyle = workbook.createCellStyle();
+            headerCellStyle.setFont(headerFont); // Apply bold font to header style
+
             for (int i = 0; i < header.length; i++) {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(header[i]);
+                cell.setCellStyle(headerCellStyle);
             }
 
-            // Fill data rows
-            for (int i = 0; i < attendances.size(); i++) {
-                Row dataRow = sheet.createRow(i + 1);
-                AttendanceResponseDto attendance = attendances.get(i);
 
-                // Assuming AttendanceResponseDto has appropriate getter methods
-                dataRow.createCell(0).setCellValue(attendance.getUsername());
-                dataRow.createCell(1).setCellValue(attendance.getCheckIn().toString());
-                dataRow.createCell(2).setCellValue(attendance.getCheckOut() != null ? attendance.getCheckOut().toString() : "");
-                dataRow.createCell(3).setCellValue(attendance.getDate().toString());
-                dataRow.createCell(4).setCellValue(attendance.getWorkType());
+            //Create data row
+            // Create data rows with regular font size
+            Font dataFont = workbook.createFont();
+            dataFont.setFontHeightInPoints((short) 11); // Set row data font size
+
+            CellStyle dataCellStyle = workbook.createCellStyle();
+            dataCellStyle.setFont(dataFont); // Apply normal font to data style
+
+            for (int i = 0; i < data.size(); i++) {
+                Row dataRow = sheet.createRow(i + 1);
+                List<Object> rowData = data.get(i);
+
+                // Add serial number as the first column in each row
+                dataRow.createCell(0).setCellValue(i + 1); // Serial number (starting from 1)
+                for (int j = 0; j < rowData.size(); j++) {
+                    Cell cell = dataRow.createCell(j + 1);// Data starts from the second column (index 1)
+                    cell.setCellValue(rowData.get(j) != null ? rowData.get(j).toString() : "");
+                    cell.setCellStyle(dataCellStyle); // Apply data style to each cell in row
+                }
             }
             workbook.write(outputStream);
             return new ByteArrayInputStream(outputStream.toByteArray());

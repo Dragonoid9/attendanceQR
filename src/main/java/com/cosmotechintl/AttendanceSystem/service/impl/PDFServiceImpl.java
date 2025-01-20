@@ -1,10 +1,11 @@
 package com.cosmotechintl.AttendanceSystem.service.impl;
 
+
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceExportRequestDto;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.AttendanceResponseDto;
 import com.cosmotechintl.AttendanceSystem.mapper.AttendanceCustomRepository;
-import com.cosmotechintl.AttendanceSystem.service.ExcelService;
-import com.cosmotechintl.AttendanceSystem.utility.ExcelUtility;
+import com.cosmotechintl.AttendanceSystem.service.PDFService;
+import com.cosmotechintl.AttendanceSystem.utility.PDFUtility;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,15 +20,15 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class ExcelServiceImpl implements ExcelService {
+public class PDFServiceImpl implements PDFService {
 
     private final AttendanceCustomRepository attendanceCustomRepository;
 
-    ExcelServiceImpl(AttendanceCustomRepository attendanceCustomRepository) {
+    PDFServiceImpl(AttendanceCustomRepository attendanceCustomRepository) {
         this.attendanceCustomRepository = attendanceCustomRepository;
     }
 
-    public ResponseEntity<?> attendanceExportToExcel(AttendanceExportRequestDto attendanceRequestDto){
+    public ResponseEntity<?> attendanceExportToPDF(AttendanceExportRequestDto attendanceRequestDto){
 
         String username = attendanceRequestDto.getUsername();
         Integer month = attendanceRequestDto.getMonth();
@@ -50,15 +51,13 @@ public class ExcelServiceImpl implements ExcelService {
         if (records.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No attendance records found");
         }
-
-        // Generate Excel file
         String[] headers = {"S.N","Username","Check In","Check Out", "Date","Work Type"};
-
+        String title = "Attendance Report";
         // Create DateTimeFormatter for 12-hour time format (e.g., "02:30 PM")
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
 
-        // Prepare data for the Excel file
-        List<List<Object>> excelData = new ArrayList<>();
+        // Prepare data for the PDF file
+        List<List<Object>> pdfData = new ArrayList<>();
         for (AttendanceResponseDto attendance : records) {
             List<Object> rowData = new ArrayList<>();
             rowData.add(attendance.getUsername());
@@ -66,23 +65,23 @@ public class ExcelServiceImpl implements ExcelService {
             rowData.add(attendance.getCheckOut() != null ? timeFormatter.format(attendance.getCheckOut()) : "");
             rowData.add(attendance.getDate().toString());
             rowData.add(attendance.getWorkType());
-            excelData.add(rowData);
+            pdfData.add(rowData);
         }
 
-        ByteArrayInputStream excelStream = ExcelUtility.dataToExcel("Attendance Report", headers,excelData);
+
+        ByteArrayInputStream pdfStream = PDFUtility.dataToPDF(title,headers,pdfData);
 
         // Format current date for file name
         String formattedDate = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String fileName = "attendance_report_" + formattedDate + ".xlsx";
+        String fileName = "attendance_report_" + formattedDate + ".pdf";
 
         // Return response
         HttpHeaders headersResponse = new HttpHeaders();
         headersResponse.add("Content-Disposition", "attachment; filename=" + fileName);
-        headersResponse.add("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
+        headersResponse.add("Content-Type", "application/pdf");
 
         return ResponseEntity.ok()
                 .headers(headersResponse)
-                .body(new InputStreamResource(excelStream));
+                .body(new InputStreamResource(pdfStream));
     }
 }
