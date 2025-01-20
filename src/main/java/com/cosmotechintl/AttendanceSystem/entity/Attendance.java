@@ -21,7 +21,7 @@ public class Attendance {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id",referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private UserInfo userInfo;
 
     @Column(name = "checkin")

@@ -59,6 +59,7 @@ public class JwtServiceImpl implements JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
     private String createToken(Map<String, Object> claims, String username, long expirationTime) {
         return Jwts.builder()
                 .setClaims(claims)
@@ -81,16 +82,16 @@ public class JwtServiceImpl implements JwtService {
     public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         String accessTokenValid = authTokenRepository.existByAccessTokenAndIsActiveFalse(token)
-                .orElseThrow(()-> new TokenValidationException("Token is not Valid."));
+                .orElseThrow(() -> new TokenValidationException("Token is not Valid."));
         return (username.equals(userDetails.getUsername()) && isTokenExpired(token));
     }
 
-    public boolean validateRefreshToken(String token){
+    public boolean validateRefreshToken(String token) {
         final String username = extractUsername(token);
-        String refreshTokenValid =authTokenRepository.existByRefreshTokenAndIsActiveFalse(token)
-                .orElseThrow(()-> new TokenValidationException(("Refresh Token is not Valid.")));
+        String refreshTokenValid = authTokenRepository.existByRefreshTokenAndIsActiveFalse(token)
+                .orElseThrow(() -> new TokenValidationException(("Refresh Token is not Valid.")));
 
-        return (username !=null && isTokenExpired(token));
+        return (username != null && isTokenExpired(token));
     }
 
     public String generateToken(String username, List<String> roles) {
@@ -108,7 +109,7 @@ public class JwtServiceImpl implements JwtService {
         return claims.get("roles", List.class);
     }
 
-    public List<String> extractRolesFromUsername(String username){
+    public List<String> extractRolesFromUsername(String username) {
         return userInfoRepository.getRolesByUsername(username);
     }
 }

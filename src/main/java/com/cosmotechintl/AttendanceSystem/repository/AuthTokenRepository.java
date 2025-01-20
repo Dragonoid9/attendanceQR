@@ -12,16 +12,16 @@ import java.util.Optional;
 @Repository
 public interface AuthTokenRepository extends JpaRepository<AuthToken, Long> {
 
-    @Query(value = "Select access_token from auth_token where access_token= :accessToken AND is_active = false ",nativeQuery = true)
+    @Query(value = "Select access_token from auth_token where access_token= :accessToken AND is_active = false ", nativeQuery = true)
     Optional<String> existByAccessTokenAndIsActiveFalse(String accessToken);
 
-    @Query(value = "Select refresh_token from auth_token where refresh_token= :refreshToken AND is_active = false ",nativeQuery = true)
+    @Query(value = "Select refresh_token from auth_token where refresh_token= :refreshToken AND is_active = false ", nativeQuery = true)
     Optional<String> existByRefreshTokenAndIsActiveFalse(String refreshToken);
 
     @Modifying
     @Transactional
-    @Query(value="UPDATE auth_token set is_active = true WHERE refresh_token = :refreshToken",nativeQuery = true)
+    @Query(value = "UPDATE auth_token set is_active = true WHERE refresh_token = :refreshToken", nativeQuery = true)
     void setIsActiveTrue(String refreshToken);
 
-    Optional <AuthToken> findByAccessToken(String accessToken);
+    Optional<AuthToken> findByAccessToken(String accessToken);
 }

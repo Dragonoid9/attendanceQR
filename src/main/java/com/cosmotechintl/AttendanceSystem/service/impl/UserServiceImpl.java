@@ -1,7 +1,6 @@
 package com.cosmotechintl.AttendanceSystem.service.impl;
 
 
-
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.RoleRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.UserRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
@@ -44,7 +43,7 @@ public class UserServiceImpl implements UserService {
         String encodedPassword = passwordEncoder.encode(userRequestDTO.getPassword());
         List<UserRole> roles = userRequestDTO.getRoles().stream()
                 .map(roleName -> roleRepository.findByName(roleName)
-                        .orElseThrow(()-> new ResourceNotFoundException("Role not found: "+ roleName)))
+                        .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + roleName)))
                 .toList();
 
         UserInfo user = UserInfo.builder()
@@ -61,10 +60,10 @@ public class UserServiceImpl implements UserService {
     public ApiResponse<?> addRole(RoleRequestDTO roleRequestDTO) {
         String name = roleRequestDTO.getName();
 
-        if(roleRepository.existsByName(name)){
+        if (roleRepository.existsByName(name)) {
             throw new ResourceAlreadyExistsException("Role name: '" + name + "' is already registered.");
         }
-        UserRole role =UserRole.builder()
+        UserRole role = UserRole.builder()
                 .name(name)
                 .build();
         UserRole savedRole = roleRepository.save(role);

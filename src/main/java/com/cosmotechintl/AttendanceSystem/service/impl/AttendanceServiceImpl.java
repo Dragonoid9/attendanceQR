@@ -244,7 +244,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         qrRepository.save(qrData);
     }
 
-    public ApiResponse<?> getAttendance(AttendanceRequestDto attendanceRequestDto){
+    public ApiResponse<?> getAttendance(AttendanceRequestDto attendanceRequestDto) {
 
         Long userId = attendanceRequestDto.getUserId();
         Integer month = attendanceRequestDto.getMonth();
@@ -295,16 +295,16 @@ public class AttendanceServiceImpl implements AttendanceService {
 //            attendanceResponses.add(myAttendanceResponseDto);
 //        }
 
-        return ResponseUtil.getSuccessResponse(pagedResponseDto,"Successfully Fetched Attendance.");
+        return ResponseUtil.getSuccessResponse(pagedResponseDto, "Successfully Fetched Attendance.");
     }
 
-    public ApiResponse<?> getOwnAttendanceByMonth(int month, int year){
+    public ApiResponse<?> getOwnAttendanceByMonth(int month, int year) {
 
-        Long userId =getCurrentUserId();
+        Long userId = getCurrentUserId();
         List<Attendance> attendances = attendanceRepository.findAllByUserIdAndMonthAndYear(userId, month, year);
         List<MyAttendanceResponseDto> attendanceResponses = new ArrayList<>();
 
-        for(Attendance attendance : attendances){
+        for (Attendance attendance : attendances) {
             MyAttendanceResponseDto myAttendanceResponseDto = new MyAttendanceResponseDto();
             myAttendanceResponseDto.setCheckIn(attendance.getCheckin());
             myAttendanceResponseDto.setCheckOut(attendance.getCheckout());
@@ -314,7 +314,7 @@ public class AttendanceServiceImpl implements AttendanceService {
             attendanceResponses.add(myAttendanceResponseDto);
         }
 
-        return ResponseUtil.getSuccessResponse(attendanceResponses,"Successfully Fetched Attendance.");
+        return ResponseUtil.getSuccessResponse(attendanceResponses, "Successfully Fetched Attendance.");
     }
 
     private Long getCurrentUserId() {

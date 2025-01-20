@@ -60,7 +60,7 @@ public class AuthServiceImp implements AuthService {
                     .refreshToken(refreshToken)
                     .issuedDate(LocalDateTime.now())
                     .isActive(false)
-                    .userInfo((UserInfo)userDetails)
+                    .userInfo((UserInfo) userDetails)
                     .build();
             authTokenRepository.save(authToken);
             LoginResponseDTO loginResponseDTO = LoginResponseDTO.builder()
@@ -68,18 +68,18 @@ public class AuthServiceImp implements AuthService {
                     .refreshToken(refreshToken)
                     .build();
             return ResponseUtil.getSuccessResponse(loginResponseDTO, "Login Successful");
-        }catch (DataAccessException e) {
-            return ResponseUtil.getValidationErrorResponse("Something went wrong. "+"Please contact support.");
-        }catch (AuthenticationException e) {
-                return ResponseUtil.getValidationErrorResponse("The username or password is incorrect. Please try again.");
-        }catch (Exception e) {
+        } catch (DataAccessException e) {
+            return ResponseUtil.getValidationErrorResponse("Something went wrong. " + "Please contact support.");
+        } catch (AuthenticationException e) {
+            return ResponseUtil.getValidationErrorResponse("The username or password is incorrect. Please try again.");
+        } catch (Exception e) {
             return ResponseUtil.getErrorResponse(e, HttpStatus.SERVICE_UNAVAILABLE);
         }
     }
 
     @Override
-    public ApiResponse<?> generateRefreshToken(String refreshToken){
-        try{
+    public ApiResponse<?> generateRefreshToken(String refreshToken) {
+        try {
             if (refreshToken == null || refreshToken.trim().isEmpty()) {
                 return ResponseUtil.getValidationErrorResponse("Refresh token is missing or invalid.");
             }
@@ -89,36 +89,36 @@ public class AuthServiceImp implements AuthService {
             }
             log.info("Validation of refresh token is successful.");
             String username = jwtService.extractUsername(refreshToken);
-            List<String> roles =jwtService.extractRolesFromUsername(username);
+            List<String> roles = jwtService.extractRolesFromUsername(username);
 
             authTokenRepository.setIsActiveTrue(refreshToken);
             log.info("Used column value is changed.");
 
-            String accessToken = jwtService.generateToken(username,roles);
+            String accessToken = jwtService.generateToken(username, roles);
             String refreshTokenRefresh = jwtService.generateRefreshToken(username);
 
-            UserInfo userDetails =userInfoRepository.findByUsername(username)
-                    .orElseThrow(()->new ResourceNotFoundException("User not found"+username));
+            UserInfo userDetails = userInfoRepository.findByUsername(username)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found" + username));
 
             AuthToken authToken = AuthToken.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshTokenRefresh)
                     .issuedDate(LocalDateTime.now())
                     .isActive(false)
-                    .userInfo((UserInfo)userDetails)
+                    .userInfo((UserInfo) userDetails)
                     .build();
             authTokenRepository.save(authToken);
 
             log.info(" After the repository saved of the authToken.");
 
-            AuthResponseDTO authResponseDTO =AuthResponseDTO.
+            AuthResponseDTO authResponseDTO = AuthResponseDTO.
                     builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshTokenRefresh)
                     .build();
 
-            return ResponseUtil.getSuccessResponse(authResponseDTO,"Successfully Refreshed.");
-        }catch (Exception e) {
+            return ResponseUtil.getSuccessResponse(authResponseDTO, "Successfully Refreshed.");
+        } catch (Exception e) {
             return ResponseUtil.getErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -146,16 +146,17 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
-    public ApiResponse<?> getAllRefreshTokens(){
+    public ApiResponse<?> getAllRefreshTokens() {
         log.info("Getting all refresh tokens.");
-       List<AuthToken> authTokens= authTokenRepository.findAll();
-       List<AuthResponseDTO> authResponses =new ArrayList<>();;
-       for (AuthToken authToken : authTokens) {
-           AuthResponseDTO authResponseDTO = new AuthResponseDTO();
-           authResponseDTO.setAccessToken(authToken.getAccessToken());
-           authResponseDTO.setRefreshToken(authToken.getRefreshToken());
-           authResponses.add(authResponseDTO);
-       }
+        List<AuthToken> authTokens = authTokenRepository.findAll();
+        List<AuthResponseDTO> authResponses = new ArrayList<>();
+        ;
+        for (AuthToken authToken : authTokens) {
+            AuthResponseDTO authResponseDTO = new AuthResponseDTO();
+            authResponseDTO.setAccessToken(authToken.getAccessToken());
+            authResponseDTO.setRefreshToken(authToken.getRefreshToken());
+            authResponses.add(authResponseDTO);
+        }
         return ResponseUtil.getSuccessResponse(authResponses, "Successfully retrieved all refresh tokens.");
     }
 }

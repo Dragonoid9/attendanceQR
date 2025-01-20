@@ -11,10 +11,10 @@ import java.util.List;
 public class ExcelUtility {
 
 
-    public static ByteArrayInputStream dataToExcel(String sheetName, String[] header,List<List<Object>> data) {
+    public static ByteArrayInputStream dataToExcel(String sheetName, String[] header, List<List<Object>> data) {
 
-        try(Workbook workbook = new XSSFWorkbook();
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();){
+        try (Workbook workbook = new XSSFWorkbook();
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();) {
 
             Sheet sheet = workbook.createSheet(sheetName);
             // Create header row
@@ -31,8 +31,7 @@ public class ExcelUtility {
                 cell.setCellValue(header[i]);
                 cell.setCellStyle(headerCellStyle);
             }
-
-
+            
             //Create data row
             // Create data rows with regular font size
             Font dataFont = workbook.createFont();

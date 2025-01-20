@@ -3,7 +3,6 @@ package com.cosmotechintl.AttendanceSystem.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity

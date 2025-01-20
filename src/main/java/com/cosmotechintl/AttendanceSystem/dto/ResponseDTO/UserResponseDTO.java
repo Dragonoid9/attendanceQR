@@ -1,7 +1,6 @@
 package com.cosmotechintl.AttendanceSystem.dto.ResponseDTO;
 
 
-
 import com.cosmotechintl.AttendanceSystem.entity.UserRole;
 import lombok.*;
 

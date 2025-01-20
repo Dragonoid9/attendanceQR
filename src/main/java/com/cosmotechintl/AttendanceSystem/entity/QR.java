@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="qr")
+@Table(name = "qr")
 public class QR {
 
     @Id
@@ -21,9 +21,9 @@ public class QR {
     @Column(name = "token")
     String token;
 
-    @Column(name ="date")
+    @Column(name = "date")
     LocalDate date;
 
-    @Column(name ="qr_url")
+    @Column(name = "qr_url")
     String qr_url;
 }

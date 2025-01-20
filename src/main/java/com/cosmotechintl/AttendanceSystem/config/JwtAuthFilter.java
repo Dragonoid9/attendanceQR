@@ -1,6 +1,7 @@
 package com.cosmotechintl.AttendanceSystem.config;
 
 
+import com.cosmotechintl.AttendanceSystem.exception.TokenNotFoundException;
 import com.cosmotechintl.AttendanceSystem.service.JwtService;
 import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -10,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -36,7 +36,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String requestUri = request.getRequestURI();
         System.out.println("Request URI: " + requestUri);  // Log the request URI
 
-        if ("/auth/refreshToken".equals(requestUri) || ("/auth/logout".equals(requestUri))){
+        if ("/auth/refreshToken".equals(requestUri) || ("/auth/logout".equals(requestUri))) {
             filterChain.doFilter(request, response);  // Skip the JWT filter logic and continue to the controller
             return;
         }
@@ -44,7 +44,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         String token = null;
         String username = null;
-        if(authHeader != null && authHeader.startsWith("Bearer ")){
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
             try {
                 username = jwtService.extractUsername(token);
@@ -53,9 +53,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 response.getWriter().write("Token is expired.");
                 return;
             }
+        }else{
+            throw new TokenNotFoundException("Token is missing or invalid.");
         }
 
-        if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 if (jwtService.validateToken(token, userDetails)) {
@@ -68,7 +70,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     ResponseUtil.getValidationErrorResponse("Access Denied");//authentication error is handled by authentrypoint.
                     return;
                 }
-            }catch (UsernameNotFoundException ex) {
+            } catch (UsernameNotFoundException ex) {
                 // Handle case where the user is not found in the database
 //                sendAuthenticationError(response, "The username or password is incorrect. Please try again.");
                 ResponseUtil.getResourceNotFoundResponse("Not a Valid Username.");//this is handled by AuthException handled in the AuthService.

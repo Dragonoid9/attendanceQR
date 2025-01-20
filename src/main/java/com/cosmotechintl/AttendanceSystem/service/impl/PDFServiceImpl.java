@@ -28,7 +28,7 @@ public class PDFServiceImpl implements PDFService {
         this.attendanceCustomRepository = attendanceCustomRepository;
     }
 
-    public ResponseEntity<?> attendanceExportToPDF(AttendanceExportRequestDto attendanceRequestDto){
+    public ResponseEntity<?> attendanceExportToPDF(AttendanceExportRequestDto attendanceRequestDto) {
 
         String username = attendanceRequestDto.getUsername();
         Integer month = attendanceRequestDto.getMonth();
@@ -45,13 +45,12 @@ public class PDFServiceImpl implements PDFService {
         if (sortBy != null && sortBy.equals("string")) sortBy = null;
         if (sortDirection != null && sortDirection.equals("string")) sortDirection = null;
 
-        List<AttendanceResponseDto> records = attendanceCustomRepository.findAttendanceByCriteriaExcel(
-                username, month, year, workType, sortBy, sortDirection);
+        List<AttendanceResponseDto> records = attendanceCustomRepository.findAttendanceByCriteriaExcel(username, month, year, workType, sortBy, sortDirection);
 
         if (records.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No attendance records found");
         }
-        String[] headers = {"S.N","Username","Check In","Check Out", "Date","Work Type"};
+        String[] headers = {"S.N", "Username", "Check In", "Check Out", "Date", "Work Type"};
         String title = "Attendance Report";
         // Create DateTimeFormatter for 12-hour time format (e.g., "02:30 PM")
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
@@ -69,7 +68,7 @@ public class PDFServiceImpl implements PDFService {
         }
 
 
-        ByteArrayInputStream pdfStream = PDFUtility.dataToPDF(title,headers,pdfData);
+        ByteArrayInputStream pdfStream = PDFUtility.dataToPDF(title, headers, pdfData);
 
         // Format current date for file name
         String formattedDate = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -80,8 +79,6 @@ public class PDFServiceImpl implements PDFService {
         headersResponse.add("Content-Disposition", "attachment; filename=" + fileName);
         headersResponse.add("Content-Type", "application/pdf");
 
-        return ResponseEntity.ok()
-                .headers(headersResponse)
-                .body(new InputStreamResource(pdfStream));
+        return ResponseEntity.ok().headers(headersResponse).body(new InputStreamResource(pdfStream));
     }
 }

@@ -43,7 +43,6 @@ public interface AttendanceCustomRepository {
                                                          @Param("offset") Integer offset);
 
 
-
     @Select("<script>" +
             "SELECT COUNT(*) FROM Attendance a " +
             "WHERE 1=1 " +
@@ -64,7 +63,6 @@ public interface AttendanceCustomRepository {
                                    @Param("month") Integer month,
                                    @Param("year") Integer year,
                                    @Param("work_type") String work_type);
-
 
 
     @Select("<script>" +
@@ -89,9 +87,9 @@ public interface AttendanceCustomRepository {
             "</if>" +
             "</script>")
     List<AttendanceResponseDto> findAttendanceByCriteriaExcel(@Param("username") String username,
-                                                         @Param("month") Integer month,
-                                                         @Param("year") Integer year,
-                                                         @Param("work_type") String work_type,
-                                                         @Param("sortBy") String sortBy,
-                                                         @Param("sortDirection") String sortDirection);
+                                                              @Param("month") Integer month,
+                                                              @Param("year") Integer year,
+                                                              @Param("work_type") String work_type,
+                                                              @Param("sortBy") String sortBy,
+                                                              @Param("sortDirection") String sortDirection);
 }

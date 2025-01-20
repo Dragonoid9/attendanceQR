@@ -1,8 +1,6 @@
 package com.cosmotechintl.AttendanceSystem.exception;
 
 
-
-
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
 import org.springframework.http.HttpStatus;
@@ -30,10 +28,10 @@ public class GlobalExceptionHandler {
         return ResponseUtil.getValidationErrorResponse(message);
     }
 
-    @ExceptionHandler(value =TokenNotFoundException.class)
+    @ExceptionHandler(value = TokenNotFoundException.class)
     public ApiResponse<?> handlerTokenNotFoundException(TokenNotFoundException e) {
         String message = e.getMessage();
         HttpStatus status = HttpStatus.UNAUTHORIZED;
-        return ResponseUtil.getFailureResponse(message,status);
+        return ResponseUtil.getFailureResponse(message, status);
     }
 }

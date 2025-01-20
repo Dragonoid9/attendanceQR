@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Map;
 import javax.imageio.ImageIO;

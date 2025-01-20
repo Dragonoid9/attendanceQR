@@ -16,7 +16,7 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
 
     boolean existsByUsername(String username);
 
-    @Query(value="Select r.name from roles r left join user_role ur ON r.id = ur.role_id " +
-            "left join users u on u.id = ur.user_id where u.username=:username", nativeQuery=true)
+    @Query(value = "Select r.name from roles r left join user_role ur ON r.id = ur.role_id " +
+            "left join users u on u.id = ur.user_id where u.username=:username", nativeQuery = true)
     List<String> getRolesByUsername(String username);
 }

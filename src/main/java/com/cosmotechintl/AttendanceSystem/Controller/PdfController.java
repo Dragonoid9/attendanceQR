@@ -19,6 +19,6 @@ public class PdfController {
 
     @PostMapping("/attendance")
     public ResponseEntity<?> AttendanceExportToPDF(@RequestBody AttendanceExportRequestDto attendanceExportRequestDto) {
-        return pdfService.attendanceExportToPDF( attendanceExportRequestDto);
+        return pdfService.attendanceExportToPDF(attendanceExportRequestDto);
     }
 }

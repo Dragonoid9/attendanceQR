@@ -1,7 +1,6 @@
 package com.cosmotechintl.AttendanceSystem.utility;
 
 
-
 import com.cosmotechintl.AttendanceSystem.constant.ServerResponseCodeConstant;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import org.springframework.http.HttpStatus;
@@ -12,11 +11,11 @@ public class ResponseUtil {
 
     public static <T> ApiResponse<T> getResourceNotFoundResponse(String message) {
         return ApiResponse.<T>builder()
-                        .httpStatus(HttpStatus.OK)
-                        .message(message)
-                        .code(ServerResponseCodeConstant.NOT_FOUND)
-                        .timestamp(LocalDateTime.now())
-                        .build();
+                .httpStatus(HttpStatus.OK)
+                .message(message)
+                .code(ServerResponseCodeConstant.NOT_FOUND)
+                .timestamp(LocalDateTime.now())
+                .build();
     }
 
     public static <T> ApiResponse<T> getResourceAlreadyExistsException(String message) {
@@ -37,6 +36,7 @@ public class ResponseUtil {
                 .timestamp(LocalDateTime.now())
                 .build();
     }
+
     public static <T> ApiResponse<T> getSuccessResponse(String message) {
         return ApiResponse.<T>builder()
                 .code(ServerResponseCodeConstant.OK)

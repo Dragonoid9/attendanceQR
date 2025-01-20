@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 
 @Repository
-public interface QRRepository extends JpaRepository<QR,Long> {
+public interface QRRepository extends JpaRepository<QR, Long> {
 
 
     boolean existsByTokenAndDate(String uidtoken, LocalDate today);

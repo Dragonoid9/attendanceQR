@@ -1,7 +1,6 @@
 package com.cosmotechintl.AttendanceSystem.Controller;
 
 
-
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.RoleRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.UserRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
@@ -23,7 +22,7 @@ public class UserController {
     @PreAuthorize("hasRole('SUPER ADMIN')")
     @PostMapping("/addUser")
     public ApiResponse<?> saveUser(@RequestBody UserRequestDTO userRequestDTO) {
-           return userService.saveUser(userRequestDTO);
+        return userService.saveUser(userRequestDTO);
     }
 
     @PreAuthorize("hasRole('SUPER ADMIN')")

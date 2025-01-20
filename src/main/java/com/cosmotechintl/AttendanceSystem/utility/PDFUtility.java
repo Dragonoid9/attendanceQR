@@ -13,7 +13,7 @@ import java.util.List;
 
 public class PDFUtility {
 
-    public static ByteArrayInputStream dataToPDF(String pTitle,String[] headers, List<List<Object>> data) {
+    public static ByteArrayInputStream dataToPDF(String pTitle, String[] headers, List<List<Object>> data) {
 
         // Create a ByteArrayOutputStream to hold the PDF content
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

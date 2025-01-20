@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
 @Builder
 public class MyAttendanceResponseDto {
 
-    @JsonFormat(pattern="yyyy-MM-dd hh:mm:ss a", timezone = "Asia/Kathmandu")
+    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss a", timezone = "Asia/Kathmandu")
     private LocalDateTime checkIn;
-    @JsonFormat(pattern="yyyy-MM-dd hh:mm:ss a", timezone = "Asia/Kathmandu")
+    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss a", timezone = "Asia/Kathmandu")
     private LocalDateTime checkOut;
     private LocalDate date;
     private String workType;

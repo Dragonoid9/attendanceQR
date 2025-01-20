@@ -13,4 +13,4 @@ public interface AuthService {
     ApiResponse<?> getAllRefreshTokens();
 
     ApiResponse<?> logoutUser(String accessToken);
- }
+}

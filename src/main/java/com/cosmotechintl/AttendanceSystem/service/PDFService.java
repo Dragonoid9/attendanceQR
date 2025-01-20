@@ -5,5 +5,5 @@ import org.springframework.http.ResponseEntity;
 
 public interface PDFService {
 
-    ResponseEntity<?>  attendanceExportToPDF(AttendanceExportRequestDto attendanceRequestDto);
+    ResponseEntity<?> attendanceExportToPDF(AttendanceExportRequestDto attendanceRequestDto);
 }

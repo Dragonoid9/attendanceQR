@@ -27,7 +27,7 @@ public class ExcelServiceImpl implements ExcelService {
         this.attendanceCustomRepository = attendanceCustomRepository;
     }
 
-    public ResponseEntity<?> attendanceExportToExcel(AttendanceExportRequestDto attendanceRequestDto){
+    public ResponseEntity<?> attendanceExportToExcel(AttendanceExportRequestDto attendanceRequestDto) {
 
         String username = attendanceRequestDto.getUsername();
         Integer month = attendanceRequestDto.getMonth();
@@ -52,7 +52,7 @@ public class ExcelServiceImpl implements ExcelService {
         }
 
         // Generate Excel file
-        String[] headers = {"S.N","Username","Check In","Check Out", "Date","Work Type"};
+        String[] headers = {"S.N", "Username", "Check In", "Check Out", "Date", "Work Type"};
 
         // Create DateTimeFormatter for 12-hour time format (e.g., "02:30 PM")
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
@@ -69,7 +69,7 @@ public class ExcelServiceImpl implements ExcelService {
             excelData.add(rowData);
         }
 
-        ByteArrayInputStream excelStream = ExcelUtility.dataToExcel("Attendance Report", headers,excelData);
+        ByteArrayInputStream excelStream = ExcelUtility.dataToExcel("Attendance Report", headers, excelData);
 
         // Format current date for file name
         String formattedDate = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());

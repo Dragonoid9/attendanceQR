@@ -41,7 +41,7 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-            return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("Username isn't valid: "+ username));
+            return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("Username isn't valid: " + username));
         };
     }
 
@@ -52,7 +52,7 @@ public class SecurityConfig {
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                 .cors(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(PublicUrls.PUBLIC_URLS).permitAll()
                         .anyRequest().authenticated()
@@ -66,12 +66,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(){
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService());
         authenticationProvider.setPasswordEncoder(passwordEncoder());
