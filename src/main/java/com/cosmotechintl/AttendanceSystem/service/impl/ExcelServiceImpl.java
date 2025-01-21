@@ -5,6 +5,7 @@ import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.AttendanceResponseDto;
 import com.cosmotechintl.AttendanceSystem.mapper.AttendanceCustomRepository;
 import com.cosmotechintl.AttendanceSystem.service.ExcelService;
 import com.cosmotechintl.AttendanceSystem.utility.ExcelUtility;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -84,5 +85,27 @@ public class ExcelServiceImpl implements ExcelService {
         return ResponseEntity.ok()
                 .headers(headersResponse)
                 .body(new InputStreamResource(excelStream));
+    }
+
+    public ResponseEntity<?> exportEmptyUserExcelTemplate (HttpServletResponse response){
+
+        String[] headers = {"S.N","Username","Email", "Password",  "Phone Number", "Address", "Salary",
+                "Department", "Date of Birth", "Hire Date", "Status", "Roles"};
+
+        List<List<Object>> excelData = new ArrayList<>();
+
+        ByteArrayInputStream excelStream = ExcelUtility.dataToExcel("UserInfo", headers, excelData);
+
+
+        // Return response
+        HttpHeaders headersResponse = new HttpHeaders();
+        headersResponse.add("Content-Disposition", "attachment; filename=users_template.xlsx" );
+        headersResponse.add("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+
+        return ResponseEntity.ok()
+                .headers(headersResponse)
+                .body(new InputStreamResource(excelStream));
+
     }
 }

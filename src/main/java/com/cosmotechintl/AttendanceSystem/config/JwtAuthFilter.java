@@ -1,7 +1,6 @@
 package com.cosmotechintl.AttendanceSystem.config;
 
 
-import com.cosmotechintl.AttendanceSystem.exception.TokenNotFoundException;
 import com.cosmotechintl.AttendanceSystem.service.JwtService;
 import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -53,8 +52,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 response.getWriter().write("Token is expired.");
                 return;
             }
-        }else{
-            throw new TokenNotFoundException("Token is missing or invalid.");
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

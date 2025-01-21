@@ -1,7 +1,9 @@
 package com.cosmotechintl.AttendanceSystem.service.impl;
 
 
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.PasswordChangeDTO;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.RoleRequestDTO;
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.UserPasswordResetDTO;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.UserRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.entity.UserInfo;
@@ -13,6 +15,7 @@ import com.cosmotechintl.AttendanceSystem.repository.UserRoleRepository;
 import com.cosmotechintl.AttendanceSystem.service.UserService;
 import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -41,17 +44,9 @@ public class UserServiceImpl implements UserService {
         }
 
         String encodedPassword = passwordEncoder.encode(userRequestDTO.getPassword());
-        List<UserRole> roles = userRequestDTO.getRoles().stream()
-                .map(roleName -> roleRepository.findByName(roleName)
-                        .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + roleName)))
-                .toList();
+        List<UserRole> roles = userRequestDTO.getRoles().stream().map(roleName -> roleRepository.findByName(roleName).orElseThrow(() -> new ResourceNotFoundException("Role not found: " + roleName))).toList();
 
-        UserInfo user = UserInfo.builder()
-                .username(username)
-                .email(email)
-                .password(encodedPassword)
-                .roles(roles)
-                .build();
+        UserInfo user = UserInfo.builder().username(username).email(email).password(encodedPassword).roles(roles).build();
         userRepository.save(user);
         return ResponseUtil.getSuccessResponse("User Saved Successfully");
     }
@@ -63,12 +58,49 @@ public class UserServiceImpl implements UserService {
         if (roleRepository.existsByName(name)) {
             throw new ResourceAlreadyExistsException("Role name: '" + name + "' is already registered.");
         }
-        UserRole role = UserRole.builder()
-                .name(name)
-                .build();
+        UserRole role = UserRole.builder().name(name).build();
         UserRole savedRole = roleRepository.save(role);
 
         return ResponseUtil.getSuccessResponse("Role Saved Successfully");
+    }
+
+    @Override
+    public ApiResponse<?> resetPassword(UserPasswordResetDTO userPasswordResetDTO) {
+        String username = userPasswordResetDTO.getUsername();
+        String password = userPasswordResetDTO.getPassword();
+
+        try {
+            UserInfo userInfo = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+
+            String encodedPassword = passwordEncoder.encode(password);
+            userInfo.setPassword(encodedPassword);
+            userRepository.save(userInfo);
+
+            return ResponseUtil.getSuccessResponse("Password Reset Successfully");
+        } catch (Exception e) {
+            return ResponseUtil.getErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public ApiResponse<?> changePassword(PasswordChangeDTO passwordChangeDTO) {
+
+        String password = passwordChangeDTO.getNewPassword();
+        String newPassword = passwordChangeDTO.getNewPassword();
+        String username = passwordChangeDTO.getUsername();
+        try {
+            UserInfo userInfo = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+            if (!passwordEncoder.matches(password, userInfo.getPassword())) {
+                return ResponseUtil.getFailureResponse("Password does not match", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            String encodedPassword = passwordEncoder.encode(newPassword);
+            userInfo.setPassword(encodedPassword);
+            userRepository.save(userInfo);
+
+            return ResponseUtil.getSuccessResponse("Password Changed Successfully");
+        } catch (Exception e) {
+            return ResponseUtil.getErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }

@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/export/pdf")
+@RequestMapping("/pdf")
 public class PdfController {
 
     @Autowired
     private PDFService pdfService;
 
-    @PostMapping("/attendance")
+    @PostMapping("/export/attendance")
     public ResponseEntity<?> AttendanceExportToPDF(@RequestBody AttendanceExportRequestDto attendanceExportRequestDto) {
         return pdfService.attendanceExportToPDF(attendanceExportRequestDto);
     }

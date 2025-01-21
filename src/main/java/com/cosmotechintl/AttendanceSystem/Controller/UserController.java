@@ -1,7 +1,9 @@
 package com.cosmotechintl.AttendanceSystem.Controller;
 
 
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.PasswordChangeDTO;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.RoleRequestDTO;
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.UserPasswordResetDTO;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.UserRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.service.UserService;
@@ -29,6 +31,18 @@ public class UserController {
     @PostMapping("/addRole")
     public ApiResponse<?> addRole(@RequestBody RoleRequestDTO roleRequestDTO) {
         return userService.addRole(roleRequestDTO);
+    }
+
+    @PreAuthorize("hasRole('SUPER ADMIN')")
+    @PostMapping("/resetPassword")
+    public ApiResponse<?> resetPassword(@RequestBody UserPasswordResetDTO userPasswordResetDTO) {
+        return userService.resetPassword(userPasswordResetDTO);
+    }
+
+    @PreAuthorize("hasAnyRole('Employee', 'Intern')")
+    @PostMapping("/changePassword")
+    public ApiResponse<?> changePassword(@RequestBody PasswordChangeDTO passwordChangeDTO) {
+        return userService.changePassword(passwordChangeDTO);
     }
 }
 
