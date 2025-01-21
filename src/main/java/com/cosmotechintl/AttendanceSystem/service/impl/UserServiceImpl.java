@@ -19,15 +19,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final PasswordEncoder passwordEncoder;
-    private final UserInfoRepository userRepository;
-    private final UserRoleRepository roleRepository;
+    final PasswordEncoder passwordEncoder;
+    final UserInfoRepository userRepository;
+    final UserRoleRepository roleRepository;
 
     @Override
     public ApiResponse<?> saveUser(UserRequestDTO userRequestDTO) {
@@ -45,8 +46,27 @@ public class UserServiceImpl implements UserService {
 
         String encodedPassword = passwordEncoder.encode(userRequestDTO.getPassword());
         List<UserRole> roles = userRequestDTO.getRoles().stream().map(roleName -> roleRepository.findByName(roleName).orElseThrow(() -> new ResourceNotFoundException("Role not found: " + roleName))).toList();
+        String phoneNumber = userRequestDTO.getPhoneNumber();
+        String address = userRequestDTO.getAddress();
+        double salary = userRequestDTO.getSalary();
+        String department = userRequestDTO.getDepartment();
+        LocalDate dateOfBirth = userRequestDTO.getDateOfBirth();
+        LocalDate hireDate = userRequestDTO.getHireDate();
+        String status = userRequestDTO.getStatus();
 
-        UserInfo user = UserInfo.builder().username(username).email(email).password(encodedPassword).roles(roles).build();
+        UserInfo user = UserInfo.builder()
+                .username(username)
+                .email(email)
+                .password(encodedPassword)
+                .roles(roles)
+                .address(address)
+                .dateOfBirth(dateOfBirth)
+                .hireDate(hireDate)
+                .department(department)
+                .phoneNumber(phoneNumber)
+                .salary(salary)
+                .status(status)
+                .build();
         userRepository.save(user);
         return ResponseUtil.getSuccessResponse("User Saved Successfully");
     }
@@ -85,13 +105,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public ApiResponse<?> changePassword(PasswordChangeDTO passwordChangeDTO) {
 
-        String password = passwordChangeDTO.getNewPassword();
+        String password = passwordChangeDTO.getCurrentPassword();
         String newPassword = passwordChangeDTO.getNewPassword();
         String username = passwordChangeDTO.getUsername();
         try {
             UserInfo userInfo = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
             if (!passwordEncoder.matches(password, userInfo.getPassword())) {
-                return ResponseUtil.getFailureResponse("Password does not match", HttpStatus.INTERNAL_SERVER_ERROR);
+                return ResponseUtil.getFailureResponse("Current password does not match", HttpStatus.INTERNAL_SERVER_ERROR);
             }
             String encodedPassword = passwordEncoder.encode(newPassword);
             userInfo.setPassword(encodedPassword);
