@@ -130,6 +130,11 @@
 			<artifactId>openpdf</artifactId>
 			<version>2.0.3</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>1.13.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -156,6 +161,8 @@
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
 						</exclude>
+						<groupId>org.apache.commons</groupId>
+						<artifactId>commons-csv</artifactId>
 					</excludes>
 				</configuration>
 			</plugin>
