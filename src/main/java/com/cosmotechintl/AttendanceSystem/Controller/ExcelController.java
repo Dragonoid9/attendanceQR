@@ -2,12 +2,13 @@ package com.cosmotechintl.AttendanceSystem.Controller;
 
 
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceExportRequestDto;
+import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.service.ExcelService;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -25,7 +26,13 @@ public class ExcelController {
 
     @PreAuthorize("hasRole('SUPER ADMIN')")
     @GetMapping("/export/user-template")
-    public ResponseEntity<?> exportUsersTemplate(HttpServletResponse response) throws IOException {
-        return excelService.exportEmptyUserExcelTemplate(response);
+    public ResponseEntity<?> exportUsersTemplate() throws IOException {
+        return excelService.exportEmptyUserExcelTemplate();
+    }
+
+    @PreAuthorize("hasRole('SUPER ADMIN')")
+    @PostMapping("/import/users")
+    public ApiResponse<?> importUserFromExcel(@RequestParam("file")MultipartFile file) throws IOException {
+        return excelService.importUsersFromExcel(file);
     }
 }
