@@ -150,7 +150,6 @@ public class AuthServiceImpl implements AuthService {
         log.info("Getting all refresh tokens.");
         List<AuthToken> authTokens = authTokenRepository.findAll();
         List<AuthResponseDTO> authResponses = new ArrayList<>();
-        ;
         for (AuthToken authToken : authTokens) {
             AuthResponseDTO authResponseDTO = new AuthResponseDTO();
             authResponseDTO.setAccessToken(authToken.getAccessToken());
