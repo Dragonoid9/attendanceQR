@@ -11,5 +11,7 @@ public interface ExcelService {
 
     ResponseEntity<?> exportEmptyUserExcelTemplate ();
 
+    ResponseEntity<?> exportEmptyUserExcelTemplateFromStorage();
+
     ApiResponse<?> importUsersFromExcel(MultipartFile file);
 }

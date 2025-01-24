@@ -22,7 +22,7 @@ spring:
       ddl-auto: none
   web:
     resources:
-      static-locations: file:/D:/CosmoIntl Intern Period ko Kaam Haru/2025-01-01/AttendanceSystem/
+      static-locations: file:/D:/CosmoIntl Intern Period ko Kaam Haru/2025-01-02/AttendanceSystem/
 #Jwt
 jwt:
     secret: ${secretKey}

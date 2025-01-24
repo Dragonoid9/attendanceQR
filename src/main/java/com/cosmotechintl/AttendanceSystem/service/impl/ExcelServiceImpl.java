@@ -21,8 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -121,6 +120,39 @@ public class ExcelServiceImpl implements ExcelService {
 
         return ResponseEntity.ok().headers(headersResponse).body(new InputStreamResource(excelStream));
 
+    }
+
+    @Override
+    public ResponseEntity<?> exportEmptyUserExcelTemplateFromStorage() {
+        String path = "D:/CosmoIntl Intern Period ko Kaam Haru/2025-01-02/AttendanceSystem/storage/users_template.xlsx";
+
+        File file = new File(path);
+        // Check if the file exists
+        if (!file.exists()) {
+            // Return a bad request if the file doesn't exist
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Template file not found");
+        }
+
+        // Try to read the file and return it as an InputStream
+        FileInputStream fileInputStream = null;
+
+        // Try to read the file and return it as an InputStream
+        try {
+            fileInputStream = new FileInputStream(file);
+            // Return the file as an InputStreamResource
+            InputStreamResource resource = new InputStreamResource(fileInputStream);
+            // Return response
+            HttpHeaders headersResponse = new HttpHeaders();
+            headersResponse.add("Content-Disposition", "attachment; filename=users_template.xlsx");
+            headersResponse.add("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+
+            return ResponseEntity.ok().headers(headersResponse).body(resource);
+
+        } catch (IOException e) {
+            // Handle exceptions related to reading the file
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error reading the template file");
+        }
     }
 
 

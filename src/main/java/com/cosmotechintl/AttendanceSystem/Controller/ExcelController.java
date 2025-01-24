@@ -31,6 +31,12 @@ public class ExcelController {
     }
 
     @PreAuthorize("hasRole('SUPER ADMIN')")
+    @GetMapping("/export/user-template-storage")
+    public ResponseEntity<?> exportUsersTemplateFromStorage() throws IOException {
+        return excelService.exportEmptyUserExcelTemplateFromStorage();
+    }
+
+    @PreAuthorize("hasRole('SUPER ADMIN')")
     @PostMapping("/import/users")
     public ApiResponse<?> importUserFromExcel(@RequestParam("file")MultipartFile file) throws IOException {
         return excelService.importUsersFromExcel(file);
