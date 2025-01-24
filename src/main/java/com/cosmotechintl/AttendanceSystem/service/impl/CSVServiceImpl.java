@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -152,16 +153,22 @@ public class CSVServiceImpl implements CSVService {
                     String department = record[7];
 
                     // Parse dates
-                    LocalDate dateOfBirth = LocalDate.parse(record[8]);
-                    LocalDate hireDate = LocalDate.parse(record[9]);
+                    // Use SimpleDateFormat to parse the date in MM/dd/yyyy format
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
+                    // Parse the dates as java.util.Date
+                    Date dobDate = dateFormat.parse(record[8]);
+                    Date hireDateValue = dateFormat.parse(record[9]);
+
+                    // Convert java.util.Date to LocalDate
+                    LocalDate dateOfBirth = dobDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    LocalDate hireDate = hireDateValue.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
                     String status = record[10];
                     String rolesString = record[11];
 
                     // Map roles to a list
-                    List<String> roles = Stream.of(rolesString.split(","))
-                            .map(role -> "ROLE_" + role.trim())
-                            .collect(Collectors.toList());
+                    List<String> roles = Stream.of(rolesString.split(",")).map(role -> "ROLE_" + role.trim()).collect(Collectors.toList());
 
                     // Check for duplicates and skip if exists
                     if (userInfoRepository.existsByUsername(username) || userInfoRepository.existsByEmail(email)) {
@@ -170,9 +177,7 @@ public class CSVServiceImpl implements CSVService {
                     }
 
                     // Create UserRequestDTO and call saveUser method
-                    UserRequestDTO userRequestDTO = new UserRequestDTO(username, email, password, phoneNumber,
-                            address, salary, department, dateOfBirth,
-                            hireDate, status, roles);
+                    UserRequestDTO userRequestDTO = new UserRequestDTO(username, email, password, phoneNumber, address, salary, department, dateOfBirth, hireDate, status, roles);
                     userService.saveUser(userRequestDTO);
                     successCount++;
 

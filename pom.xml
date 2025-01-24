@@ -135,6 +135,11 @@
 			<artifactId>commons-csv</artifactId>
 			<version>1.13.0</version>
 		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.18.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -163,6 +168,10 @@
 						</exclude>
 						<groupId>org.apache.commons</groupId>
 						<artifactId>commons-csv</artifactId>
+						<exclude>
+							<groupId>commons-io</groupId>
+							<artifactId>commons-io</artifactId>
+						</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
