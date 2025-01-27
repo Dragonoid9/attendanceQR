@@ -1,10 +1,7 @@
 package com.cosmotechintl.AttendanceSystem.service.impl;
 
 
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.PasswordChangeDTO;
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.RoleRequestDTO;
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.UserPasswordResetDTO;
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.UserRequestDTO;
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.*;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.entity.UserInfo;
 import com.cosmotechintl.AttendanceSystem.entity.UserRole;
@@ -18,7 +15,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -35,6 +37,7 @@ public class UserServiceImpl implements UserService {
 
         String username = userRequestDTO.getUsername();
         String email = userRequestDTO.getEmail();
+        MultipartFile profilePic = userRequestDTO.getMultipartFile();
 
         if (userRepository.existsByUsername(username)) {
             throw new ResourceAlreadyExistsException("Username '" + username + "' is already taken.");
@@ -44,6 +47,21 @@ public class UserServiceImpl implements UserService {
             throw new ResourceAlreadyExistsException("Email '" + email + "' is already registered.");
         }
 
+        String profilePicPath = null;
+        if(!profilePic.isEmpty()){
+            String uploadDir = "storage/ProfilePics";
+            String fileName = username+"_profilePic";
+
+            try {
+                Path path = Paths.get(uploadDir, fileName);
+
+                Files.createDirectories(path);
+
+                profilePic.transferTo(path);
+            }catch (IOException e){
+                return ResponseUtil.getErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
         String encodedPassword = passwordEncoder.encode(userRequestDTO.getPassword());
         List<UserRole> roles = userRequestDTO.getRoles().stream().map(roleName -> roleRepository.findByName(roleName).orElseThrow(() -> new ResourceNotFoundException("Role not found: " + roleName))).toList();
         String phoneNumber = userRequestDTO.getPhoneNumber();
@@ -66,6 +84,7 @@ public class UserServiceImpl implements UserService {
                 .phoneNumber(phoneNumber)
                 .salary(salary)
                 .status(status)
+                .profilePicture(profilePicPath)
                 .build();
         userRepository.save(user);
         return ResponseUtil.getSuccessResponse("User Saved Successfully");
@@ -123,4 +142,35 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public ApiResponse<?> updateProfilePicture(ProfilePicRequestDTO profilePicRequestDTO){
+        String username = profilePicRequestDTO.getUsername();
+        MultipartFile profilePic = profilePicRequestDTO.getFile();
+
+        try{
+
+            if(profilePic.isEmpty()){
+                return ResponseUtil.getFailureResponse("No picture selected.",HttpStatus.BAD_REQUEST);
+            }
+            UserInfo userInfo = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+            String uploadDir = "storage/ProfilePics";
+            String fileName = username+"_profilePic";
+
+            Path path = Paths.get(uploadDir, fileName);
+
+            Files.createDirectories(path);
+
+            profilePic.transferTo(path);
+
+            userInfo.setProfilePicture(path.toString());
+            userRepository.save(userInfo);
+
+            return ResponseUtil.getSuccessResponse("Profile Picture Updated Successfully");
+        }catch (IOException e){
+            return ResponseUtil.getErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }catch(Exception e){
+            return ResponseUtil.getErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

@@ -1,10 +1,8 @@
 package com.cosmotechintl.AttendanceSystem.service;
 
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.PasswordChangeDTO;
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.RoleRequestDTO;
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.UserPasswordResetDTO;
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.UserRequestDTO;
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.*;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
 
@@ -15,4 +13,6 @@ public interface UserService {
     ApiResponse<?> resetPassword(UserPasswordResetDTO userPasswordResetDTO);
 
     ApiResponse<?> changePassword(PasswordChangeDTO passwordChangeDTO);
+
+    ApiResponse<?> updateProfilePicture(ProfilePicRequestDTO profilePicRequestDTO);
 }

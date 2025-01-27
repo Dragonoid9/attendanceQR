@@ -1,10 +1,7 @@
 package com.cosmotechintl.AttendanceSystem.Controller;
 
 
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.PasswordChangeDTO;
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.RoleRequestDTO;
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.UserPasswordResetDTO;
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.UserRequestDTO;
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.*;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +10,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/authUser")
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired
@@ -43,6 +41,12 @@ public class UserController {
     @PostMapping("/changePassword")
     public ApiResponse<?> changePassword(@RequestBody PasswordChangeDTO passwordChangeDTO) {
         return userService.changePassword(passwordChangeDTO);
+    }
+
+    @PreAuthorize("hasAnyRole('Employee', 'Intern')")
+    @PostMapping("/profile-pic")
+    public ApiResponse<?> UpdateProfilePicture(@RequestBody ProfilePicRequestDTO profilePicRequestDTO) {
+        return userService.updateProfilePicture(profilePicRequestDTO);
     }
 }
 
