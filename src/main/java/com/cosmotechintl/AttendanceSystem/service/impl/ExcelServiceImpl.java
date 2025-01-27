@@ -1,6 +1,6 @@
 package com.cosmotechintl.AttendanceSystem.service.impl;
 
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceExportRequestDto;
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceExportRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.UserRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.AttendanceResponseDto;
@@ -23,7 +23,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -46,7 +48,7 @@ public class ExcelServiceImpl implements ExcelService {
     }
 
     @Override
-    public ResponseEntity<?> attendanceExportToExcel(AttendanceExportRequestDto attendanceRequestDto) {
+    public ResponseEntity<?> attendanceExportToExcel(AttendanceExportRequestDTO attendanceRequestDto) {
 
         String username = attendanceRequestDto.getUsername();
         Integer month = attendanceRequestDto.getMonth();
@@ -70,7 +72,7 @@ public class ExcelServiceImpl implements ExcelService {
         }
 
         // Generate Excel file
-        String[] headers = {"S.N", "Username", "Check In", "Check Out", "Date", "Work Type"};
+        String[] headers = {"S.N", "Username", "Check In", "Check Out", "Date", "Work Type", "Hours Worked"};
 
         // Create DateTimeFormatter for 12-hour time format (e.g., "02:30 PM")
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
@@ -84,6 +86,7 @@ public class ExcelServiceImpl implements ExcelService {
             rowData.add(attendance.getCheckOut() != null ? timeFormatter.format(attendance.getCheckOut()) : "");
             rowData.add(attendance.getDate().toString());
             rowData.add(attendance.getWorkType());
+            rowData.add(calculateHoursWorked(attendance.getCheckIn(), attendance.getCheckOut()));
             excelData.add(rowData);
         }
 
@@ -100,6 +103,20 @@ public class ExcelServiceImpl implements ExcelService {
 
 
         return ResponseEntity.ok().headers(headersResponse).body(new InputStreamResource(excelStream));
+    }
+    private String calculateHoursWorked(LocalDateTime checkIn, LocalDateTime checkOut) {
+        if (checkIn != null && checkOut != null) {
+            // Calculate the duration between check-in and check-out
+            Duration duration = Duration.between(checkIn, checkOut);
+
+            // Get hours and minutes worked
+            long hours = duration.toHours();
+            long minutes = duration.toMinutes() % 60;
+
+            // Return formatted string
+            return String.format("%02d:%02d", hours, minutes);
+        }
+        return "00:00";  // If either checkIn or checkOut is null, return 00:00
     }
 
     @Override

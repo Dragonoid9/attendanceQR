@@ -1,7 +1,7 @@
 package com.cosmotechintl.AttendanceSystem.service.impl;
 
 
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceExportRequestDto;
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceExportRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.AttendanceResponseDto;
 import com.cosmotechintl.AttendanceSystem.mapper.AttendanceCustomRepository;
 import com.cosmotechintl.AttendanceSystem.service.PDFService;
@@ -28,7 +28,7 @@ public class PDFServiceImpl implements PDFService {
         this.attendanceCustomRepository = attendanceCustomRepository;
     }
 
-    public ResponseEntity<?> attendanceExportToPDF(AttendanceExportRequestDto attendanceRequestDto) {
+    public ResponseEntity<?> attendanceExportToPDF(AttendanceExportRequestDTO attendanceRequestDto) {
 
         String username = attendanceRequestDto.getUsername();
         Integer month = attendanceRequestDto.getMonth();

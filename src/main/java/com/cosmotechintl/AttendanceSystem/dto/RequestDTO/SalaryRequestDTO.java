@@ -1,5 +1,6 @@
 package com.cosmotechintl.AttendanceSystem.dto.RequestDTO;
 
+
 import lombok.*;
 
 @Getter
@@ -7,10 +8,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AttendanceRequestDto {
+public class SalaryRequestDTO {
 
     private String username;
-    private Long userId;
     private Integer month;
     private Integer year;
     private String workType;
@@ -22,5 +22,4 @@ public class AttendanceRequestDto {
     private int page = 0;  // Default value is 0
     @Builder.Default
     private int size = 10;  // Default value is 10
-
 }

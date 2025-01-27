@@ -1,7 +1,7 @@
 package com.cosmotechintl.AttendanceSystem.Controller;
 
 
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceExportRequestDto;
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceExportRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.service.CSVService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ public class CSVController {
     CSVService csvService;
 
     @PostMapping("/export/attendance")
-    public ResponseEntity<?> AttendanceExportToCSV(@RequestBody AttendanceExportRequestDto attendanceExportRequestDto) {
+    public ResponseEntity<?> AttendanceExportToCSV(@RequestBody AttendanceExportRequestDTO attendanceExportRequestDto) {
         return csvService.attendanceExportToCSV(attendanceExportRequestDto);
     }
 

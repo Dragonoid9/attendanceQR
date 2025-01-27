@@ -1,7 +1,7 @@
 package com.cosmotechintl.AttendanceSystem.Controller;
 
 
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceRequestDto;
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.QRAttendance;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.service.AttendanceService;
@@ -36,7 +36,7 @@ public class AttendanceController {
 
     @PreAuthorize("hasRole('SUPER ADMIN')")
     @PostMapping("/userAttendance")
-    public ApiResponse<?> getUserAttendance(@RequestBody AttendanceRequestDto attendanceRequestDto) {
+    public ApiResponse<?> getUserAttendance(@RequestBody AttendanceRequestDTO attendanceRequestDto) {
         return attendanceService.getAttendance(attendanceRequestDto);
     }
 

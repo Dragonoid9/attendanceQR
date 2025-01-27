@@ -1,7 +1,7 @@
 package com.cosmotechintl.AttendanceSystem.Controller;
 
 
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceExportRequestDto;
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceExportRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.service.ExcelService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ public class ExcelController {
     private ExcelService excelService;
 
     @PostMapping("/export/attendance")
-    public ResponseEntity<?> AttendanceExportToExcel(@RequestBody AttendanceExportRequestDto attendanceExportRequestDto) {
+    public ResponseEntity<?> AttendanceExportToExcel(@RequestBody AttendanceExportRequestDTO attendanceExportRequestDto) {
         return excelService.attendanceExportToExcel(attendanceExportRequestDto);
     }
 

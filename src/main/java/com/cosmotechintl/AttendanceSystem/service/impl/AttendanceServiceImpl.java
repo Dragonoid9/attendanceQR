@@ -1,6 +1,6 @@
 package com.cosmotechintl.AttendanceSystem.service.impl;
 
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceRequestDto;
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.QRAttendance;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.AttendanceResponseDto;
@@ -244,7 +244,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         qrRepository.save(qrData);
     }
 
-    public ApiResponse<?> getAttendance(AttendanceRequestDto attendanceRequestDto) {
+    public ApiResponse<?> getAttendance(AttendanceRequestDTO attendanceRequestDto) {
 
         Long userId = attendanceRequestDto.getUserId();
         Integer month = attendanceRequestDto.getMonth();

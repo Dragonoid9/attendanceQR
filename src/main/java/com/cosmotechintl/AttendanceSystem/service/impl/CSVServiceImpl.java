@@ -1,6 +1,6 @@
 package com.cosmotechintl.AttendanceSystem.service.impl;
 
-import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceExportRequestDto;
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceExportRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.UserRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.AttendanceResponseDto;
@@ -46,7 +46,7 @@ public class CSVServiceImpl implements CSVService {
 
 
     @Override
-    public ResponseEntity<?> attendanceExportToCSV(AttendanceExportRequestDto attendanceRequestDto) {
+    public ResponseEntity<?> attendanceExportToCSV(AttendanceExportRequestDTO attendanceRequestDto) {
 
         String username = attendanceRequestDto.getUsername();
         Integer month = attendanceRequestDto.getMonth();
