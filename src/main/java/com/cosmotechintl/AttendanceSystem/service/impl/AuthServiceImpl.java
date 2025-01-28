@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -157,5 +158,15 @@ public class AuthServiceImpl implements AuthService {
             authResponses.add(authResponseDTO);
         }
         return ResponseUtil.getSuccessResponse(authResponses, "Successfully retrieved all refresh tokens.");
+    }
+
+    @Scheduled(cron = "0 0 0 L * ? ")
+    private void dropAuthTokenTable() {
+        try {
+            authTokenRepository.deleteAll();
+            log.info("All records from authToken table deleted at: {}", LocalDateTime.now());
+        } catch (Exception e) {
+            log.error("Error while deleting records from authToken table", e);
+        }
     }
 }
