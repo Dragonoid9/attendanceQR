@@ -10,13 +10,17 @@ import com.cosmotechintl.AttendanceSystem.exception.ResourceNotFoundException;
 import com.cosmotechintl.AttendanceSystem.repository.UserInfoRepository;
 import com.cosmotechintl.AttendanceSystem.repository.UserRoleRepository;
 import com.cosmotechintl.AttendanceSystem.service.UserService;
+import com.cosmotechintl.AttendanceSystem.utility.FileUtility;
+import com.cosmotechintl.AttendanceSystem.utility.ImageProcessingUtil;
 import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,6 +30,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     final PasswordEncoder passwordEncoder;
@@ -49,15 +54,24 @@ public class UserServiceImpl implements UserService {
 
         String profilePicPath = null;
         if(!profilePic.isEmpty()){
-            String uploadDir = "storage/ProfilePics";
-            String fileName = username+"_profilePic";
-
             try {
-                Path path = Paths.get(uploadDir, fileName);
+                String originalFileName = profilePic.getOriginalFilename();
+                String fileExtension = originalFileName != null ? originalFileName.substring(originalFileName.lastIndexOf(".") + 1).toLowerCase() : "png";
 
-                Files.createDirectories(path);
+                // Prepare the file paths
+                String uploadDir = "storage/ProfilePics";
+                String fileName = username + "_profilePic." + fileExtension;
 
-                profilePic.transferTo(path);
+                // Create a temporary file to save the uploaded image
+                File tempFile = new File(uploadDir, fileName);
+                profilePic.transferTo(tempFile);
+
+                // Prepare the compressed image file path (same extension)
+                File compressedFile = new File(uploadDir, username + "_profilePic_compressed." + fileExtension);
+                ImageProcessingUtil.compressImage(tempFile, compressedFile, 0.7f);
+
+                profilePicPath= FileUtility.saveFile(compressedFile,uploadDir,true);
+                tempFile.delete();
             }catch (IOException e){
                 return ResponseUtil.getErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
             }
@@ -143,34 +157,57 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ApiResponse<?> updateProfilePicture(ProfilePicRequestDTO profilePicRequestDTO){
-        String username = profilePicRequestDTO.getUsername();
-        MultipartFile profilePic = profilePicRequestDTO.getFile();
+    public ApiResponse<?> updateProfilePicture(String username, MultipartFile profilePic) {
 
-        try{
-
-            if(profilePic.isEmpty()){
-                return ResponseUtil.getFailureResponse("No picture selected.",HttpStatus.BAD_REQUEST);
+        File tempFile = null;
+        try {
+            if (profilePic.isEmpty()) {
+                return ResponseUtil.getFailureResponse("No picture selected.", HttpStatus.BAD_REQUEST);
             }
+
+            // Fetch user information from the database
             UserInfo userInfo = userRepository.findByUsername(username)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+
+            // Get the original file extension from the uploaded image
+            String originalFileName = profilePic.getOriginalFilename();
+            String fileExtension = originalFileName != null ? originalFileName.substring(originalFileName.lastIndexOf(".") + 1).toLowerCase() : "png";
+
+            // Define the upload directory
             String uploadDir = "storage/ProfilePics";
-            String fileName = username+"_profilePic";
+            String fileName = username + "_profilePic." + fileExtension;
 
-            Path path = Paths.get(uploadDir, fileName);
+            log.info("Creating profile picture: " + fileName);
+            // Create a temporary file to save the uploaded image
+            Path tempDir = Files.createTempDirectory("imageTemp");
+            tempFile = tempDir.resolve(profilePic.getOriginalFilename()).toFile();
+            profilePic.transferTo(tempFile);
 
-            Files.createDirectories(path);
-
-            profilePic.transferTo(path);
-
-            userInfo.setProfilePicture(path.toString());
+            log.info("Profile pic Transfered to tempFile: " + tempFile.getAbsolutePath());
+            // Prepare the compressed image file path (same extension)
+            File compressedFile = new File(uploadDir, username + "_profilePic_compressed." + fileExtension);
+            log.info("Compressing profile picture: " + compressedFile.getAbsolutePath());
+            // Compress the image based on its format
+            ImageProcessingUtil.compressImage(tempFile, compressedFile, 0.7f);
+            log.info("Profile pic Compressed to tempFile: " + compressedFile.getAbsolutePath());
+            // Save the compressed image using FileUtility
+            String profilePicPath = FileUtility.saveFile(compressedFile, uploadDir,true);
+            log.info("Profile pic Path: " + profilePicPath);
+            // Update the user's profile picture path
+            userInfo.setProfilePicture(profilePicPath);
             userRepository.save(userInfo);
+            log.info("After saving to database and before deleting the tempfile");
 
+            log.info("After deleting the tempfile");
             return ResponseUtil.getSuccessResponse("Profile Picture Updated Successfully");
-        }catch (IOException e){
+        } catch(Exception e){
             return ResponseUtil.getErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
-        }catch(Exception e){
-            return ResponseUtil.getErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }finally {
+            // Ensure the temporary file is deleted even if an exception occurs
+            if (tempFile != null && tempFile.exists()) {
+                boolean deleted = tempFile.delete();
+                log.info("Temporary file deleted: " + deleted);
+            }
         }
     }
 }

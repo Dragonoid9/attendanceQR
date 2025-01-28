@@ -175,9 +175,8 @@ public class CSVServiceImpl implements CSVService {
                         duplicateCount++;
                         continue;
                     }
-
                     // Create UserRequestDTO and call saveUser method
-                    UserRequestDTO userRequestDTO = new UserRequestDTO(username, email, password, phoneNumber, address, salary, department, dateOfBirth, hireDate, status, roles);
+                    UserRequestDTO userRequestDTO = new UserRequestDTO(username, email, password, phoneNumber, address, salary, department, dateOfBirth, hireDate, status, roles, null);
                     userService.saveUser(userRequestDTO);
                     successCount++;
 

@@ -228,7 +228,7 @@ public class ExcelServiceImpl implements ExcelService {
                     }
 
                     // Create a UserRequestDTO and call the saveUser method
-                    UserRequestDTO userRequestDTO = new UserRequestDTO(username, email, password, phoneNumber, address, salary, department, dateOfBirth, hireDate, status, roles);
+                    UserRequestDTO userRequestDTO = new UserRequestDTO(username, email, password, phoneNumber, address, salary, department, dateOfBirth, hireDate, status, roles,null);
 
                     userService.saveUser(userRequestDTO);
                     successCount++;

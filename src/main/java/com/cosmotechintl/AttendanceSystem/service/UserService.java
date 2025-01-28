@@ -14,5 +14,5 @@ public interface UserService {
 
     ApiResponse<?> changePassword(PasswordChangeDTO passwordChangeDTO);
 
-    ApiResponse<?> updateProfilePicture(ProfilePicRequestDTO profilePicRequestDTO);
+    ApiResponse<?> updateProfilePicture(String username, MultipartFile file);
 }

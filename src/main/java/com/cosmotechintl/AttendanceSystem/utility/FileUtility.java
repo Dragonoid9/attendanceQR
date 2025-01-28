@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 public class FileUtility {
@@ -16,21 +17,27 @@ public class FileUtility {
      * @return The path of the stored file.
      * @throws IOException If an error occurs during file saving.
      */
-    public static String saveFile(File file, String targetDir) throws IOException {
+    public static String saveFile(File file, String targetDir,Boolean isUpdate) throws IOException {
         // Validate file
         if (file == null || !file.exists()) {
             throw new IllegalArgumentException("File is null or does not exist.");
         }
 
         // Ensure the target directory exists
-        Path directoryPath = Path.of(targetDir);
+        Path directoryPath = Paths.get(targetDir);
 
         if (!Files.exists(directoryPath)) {
-            Files.createDirectory(directoryPath);
+            Files.createDirectories(directoryPath);
         }
-        // Create a unique file name to avoid overwriting existing files
         String originalFileName = file.getName();
-        String uniqueFileName = System.currentTimeMillis() + "_" + (originalFileName != null ? originalFileName : "uploaded_file");
+        String uniqueFileName;
+        if (isUpdate) {
+            // If it's an update (profile picture), use the username as the filename
+             uniqueFileName = originalFileName;
+        } else {
+            // Create a unique file name to avoid overwriting existing files
+             uniqueFileName = System.currentTimeMillis() + "_" + (originalFileName != null ? originalFileName : "uploaded_file");
+        }
 
         // Define the file path
         Path targetPath = directoryPath.resolve(uniqueFileName);
@@ -38,6 +45,6 @@ public class FileUtility {
         // Copy the file content to the target location
         Files.copy(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-        return targetDir + uniqueFileName; // Return the absolute path of the saved file
+        return targetPath.toString(); // Return the absolute path of the saved file
     }
 }

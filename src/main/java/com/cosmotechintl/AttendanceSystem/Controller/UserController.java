@@ -6,10 +6,7 @@ import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -45,8 +42,9 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('Employee', 'Intern')")
     @PostMapping("/profile-pic")
-    public ApiResponse<?> UpdateProfilePicture(@RequestBody ProfilePicRequestDTO profilePicRequestDTO) {
-        return userService.updateProfilePicture(profilePicRequestDTO);
+    public ApiResponse<?> UpdateProfilePicture(@RequestParam("username") String username,
+                                               @RequestParam("file") MultipartFile file) {
+        return userService.updateProfilePicture(username,file);
     }
 }
 
