@@ -4,13 +4,14 @@ package com.cosmotechintl.AttendanceSystem.Controller;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.*;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/v1/user")
 public class UserController {
 
     @Autowired
@@ -18,25 +19,25 @@ public class UserController {
 
     @PreAuthorize("hasRole('SUPER ADMIN')")
     @PostMapping("/addUser")
-    public ApiResponse<?> saveUser(@RequestBody UserRequestDTO userRequestDTO) {
+    public ApiResponse<?> saveUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
         return userService.saveUser(userRequestDTO);
     }
 
     @PreAuthorize("hasRole('SUPER ADMIN')")
     @PostMapping("/addRole")
-    public ApiResponse<?> addRole(@RequestBody RoleRequestDTO roleRequestDTO) {
+    public ApiResponse<?> addRole(@Valid @RequestBody RoleRequestDTO roleRequestDTO) {
         return userService.addRole(roleRequestDTO);
     }
 
     @PreAuthorize("hasRole('SUPER ADMIN')")
     @PostMapping("/resetPassword")
-    public ApiResponse<?> resetPassword(@RequestBody UserPasswordResetDTO userPasswordResetDTO) {
+    public ApiResponse<?> resetPassword(@Valid @RequestBody UserPasswordResetDTO userPasswordResetDTO) {
         return userService.resetPassword(userPasswordResetDTO);
     }
 
     @PreAuthorize("hasAnyRole('Employee', 'Intern')")
     @PostMapping("/changePassword")
-    public ApiResponse<?> changePassword(@RequestBody PasswordChangeDTO passwordChangeDTO) {
+    public ApiResponse<?> changePassword(@Valid @RequestBody PasswordChangeDTO passwordChangeDTO) {
         return userService.changePassword(passwordChangeDTO);
     }
 

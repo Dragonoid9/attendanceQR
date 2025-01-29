@@ -5,13 +5,14 @@ import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.LoginRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.exception.TokenNotFoundException;
 import com.cosmotechintl.AttendanceSystem.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
 @Slf4j
 public class AuthController {
 
@@ -19,7 +20,7 @@ public class AuthController {
     AuthService authService;
 
     @PostMapping("/login")
-    public ApiResponse<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {
+    public ApiResponse<?> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
         return authService.loginUser(loginRequestDTO);
     }
 

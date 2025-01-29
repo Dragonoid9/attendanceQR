@@ -7,8 +7,8 @@ public class PublicUrls {
             "/v3/api-docs/**",
             "/swagger-resources/**",
             "/swagger-resources"
-            , "/auth/login"
-            , "/auth/refreshToken"
-            , "/auth/logout"
+            , "/api/v1/auth/login"
+            , "/api/v1/auth/refreshToken"
+            , "/api/v1/auth/logout"
     };
 }

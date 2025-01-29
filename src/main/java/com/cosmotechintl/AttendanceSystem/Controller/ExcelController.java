@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/excel")
+@RequestMapping("/api/v1/excel")
 public class ExcelController {
 
     @Autowired

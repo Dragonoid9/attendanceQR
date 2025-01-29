@@ -5,12 +5,13 @@ import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceRequestDTO;
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.QRAttendance;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.service.AttendanceService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/attendance")
+@RequestMapping("/api/v1/attendance")
 public class AttendanceController {
 
     @Autowired
@@ -23,13 +24,13 @@ public class AttendanceController {
 
 
     @PostMapping("/checkIn")
-    public ApiResponse<?> checkInUser(@RequestBody QRAttendance attendance) {
+    public ApiResponse<?> checkInUser(@Valid @RequestBody QRAttendance attendance) {
 
         return attendanceService.checkIn(attendance);
     }
 
     @PostMapping("/checkOut")
-    public ApiResponse<?> checkOutUser(@RequestBody QRAttendance attendance) {
+    public ApiResponse<?> checkOutUser(@Valid @RequestBody QRAttendance attendance) {
         return attendanceService.checkOut(attendance);
     }
 

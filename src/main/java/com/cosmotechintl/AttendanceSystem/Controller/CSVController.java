@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/csv")
+@RequestMapping("/api/v1/csv")
 public class CSVController {
 
     @Autowired
