@@ -21,7 +21,7 @@ public class Attendance {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id",referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private UserInfo userInfo;
 
     @Column(name = "checkin")
@@ -33,7 +33,8 @@ public class Attendance {
     @Column(name = "date", nullable = false)
     private LocalDate date;
 
-//    @Column(name = "qr_code", nullable = false, length = 255)
-//    private String qrCode;
+    @Column(name = "work_type", nullable = false)
+    private String workType;
+
 }
 

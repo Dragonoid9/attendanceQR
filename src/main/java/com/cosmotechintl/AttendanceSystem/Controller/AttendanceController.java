@@ -1,30 +1,52 @@
 package com.cosmotechintl.AttendanceSystem.Controller;
 
 
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.AttendanceRequestDTO;
+import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.QRAttendance;
 import com.cosmotechintl.AttendanceSystem.dto.ResponseDTO.ApiResponse;
 import com.cosmotechintl.AttendanceSystem.service.AttendanceService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/attendance")
+@RequestMapping("/api/v1/attendance")
 public class AttendanceController {
 
     @Autowired
     private AttendanceService attendanceService;
 
-    @GetMapping("/getQR")
-    public ApiResponse<?> getAttendance() {
-
-        return attendanceService.generateQR();
+    @GetMapping("/getAttendanceQR")
+    public ApiResponse<?> getAttendanceQR() {
+        return attendanceService.getAttendanceQR();
     }
-    @GetMapping("/checkIn")
-    public ApiResponse<?> checkInUser(@RequestParam String accessToken,@RequestParam String expiration){
 
-        return attendanceService.checkIn(accessToken, expiration);
+
+    @PostMapping("/checkIn")
+    public ApiResponse<?> checkInUser(@Valid @RequestBody QRAttendance attendance) {
+
+        return attendanceService.checkIn(attendance);
     }
-    @GetMapping("/checkOut")
-    public ApiResponse<?> checkOutUser(@RequestParam String accessToken,@RequestParam String expiration){
-        return attendanceService.checkOut(accessToken, expiration);
+
+    @PostMapping("/checkOut")
+    public ApiResponse<?> checkOutUser(@Valid @RequestBody QRAttendance attendance) {
+        return attendanceService.checkOut(attendance);
+    }
+
+
+    @PreAuthorize("hasRole('SUPER ADMIN')")
+    @PostMapping("/userAttendance")
+    public ApiResponse<?> getUserAttendance(@RequestBody AttendanceRequestDTO attendanceRequestDto) {
+        return attendanceService.getAttendance(attendanceRequestDto);
+    }
+
+    @PreAuthorize("hasAnyRole('Employee', 'Intern')")
+    @GetMapping("/ownAttendanceByMonth")
+    public ApiResponse<?> getOwnAttendanceByMonth(
+            @RequestParam int month,
+            @RequestParam int year
+    ) {
+        return attendanceService.getOwnAttendanceByMonth(month, year);
     }
 }

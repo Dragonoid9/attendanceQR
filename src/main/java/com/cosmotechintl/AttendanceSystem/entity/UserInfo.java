@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,8 +29,32 @@ public class UserInfo implements UserDetails {
     @Column(name = "username", unique = true, nullable = false)
     private String username;
 
-    @Column(name ="email", unique = true,nullable = false)
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
+
+    @Column(name ="phone_number", unique = true, nullable = false)
+    private String phoneNumber;
+
+    @Column(name ="address", nullable = false)
+    private String address;
+
+    @Column(name ="salary",nullable = false)
+    private double salary;
+
+    @Column(name = "department", nullable = false)
+    private String department;
+
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
+
+    @Column(name = "hire_date")
+    private LocalDate hireDate;
+
+    @Column(name = "status", nullable = false)
+    private String status;
+
+    @Column(name = "profile_picture_url")
+    private String profilePicture;
 
     @JsonIgnore
     @Column(name = "password", nullable = false)

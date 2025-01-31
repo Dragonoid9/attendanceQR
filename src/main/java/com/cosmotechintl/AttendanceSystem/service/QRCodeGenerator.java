@@ -1,5 +1,6 @@
 package com.cosmotechintl.AttendanceSystem.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
@@ -7,19 +8,30 @@ import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.time.LocalDateTime;
+import java.io.File;
+import java.util.Map;
 import javax.imageio.ImageIO;
 
 @Component
 public class QRCodeGenerator {
 
-    private static final String BASE_URL = "localhost:8080/attendance";
+    private static final String BASE_URL = "192.168.1.89:8080/attendance";
 
-    public String generateQRCodeData(String apiUrl, LocalDateTime expiration) {
-        // Construct the QR code data URL
-        String expirationStr = expiration.toString();
-        return String.format("%s/%s?expiration=%s", BASE_URL, apiUrl, expirationStr);
+    public String generateQRCodeData(String apiUrl, String token) {
+        try {
+
+            Map<String, String> qrData = Map.of(
+                    "baseUrl", BASE_URL,
+                    "apiUrl", apiUrl,
+                    "token", token
+            );
+            // Encode the token as JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.writeValueAsString(qrData);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating QR code data", e);
+        }
     }
 
     public BufferedImage generateQRCodeImage(String qrCodeData) throws Exception {
@@ -47,10 +59,9 @@ public class QRCodeGenerator {
         return image;
     }
 
-    public byte[] getQRCodeImage(String qrCodeData) throws Exception {
-        BufferedImage bufferedImage = generateQRCodeImage(qrCodeData);
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ImageIO.write(bufferedImage, "PNG", byteArrayOutputStream);
-        return byteArrayOutputStream.toByteArray();
+    public void saveQRCodeImage(String qrCodeData, String filePath) throws Exception {
+        BufferedImage qrImage = generateQRCodeImage(qrCodeData);
+        File file = new File(filePath);
+        ImageIO.write(qrImage, "PNG", file);
     }
 }

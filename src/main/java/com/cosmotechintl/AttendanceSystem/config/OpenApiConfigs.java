@@ -15,7 +15,7 @@ import java.util.List;
 @Configuration
 public class OpenApiConfigs {
     @Bean
-    public OpenAPI customOpenAPI(){
+    public OpenAPI customOpenAPI() {
         final String securitySchemeName = "bearerAuth";
         return new OpenAPI()
                 .components(

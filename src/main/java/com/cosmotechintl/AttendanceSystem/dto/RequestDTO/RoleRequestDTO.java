@@ -1,6 +1,7 @@
 package com.cosmotechintl.AttendanceSystem.dto.RequestDTO;
 
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter
@@ -10,5 +11,6 @@ import lombok.*;
 @NoArgsConstructor
 public class RoleRequestDTO {
 
+    @NotBlank(message = "Role cannot be Null or Empty")
     private String name;
 }

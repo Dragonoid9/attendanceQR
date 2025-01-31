@@ -1,4 +1,4 @@
-package com.cosmotechintl.AttendanceSystem.service;
+package com.cosmotechintl.AttendanceSystem.service.impl;
 
 
 import com.cosmotechintl.AttendanceSystem.dto.RequestDTO.LoginRequestDTO;
@@ -10,11 +10,14 @@ import com.cosmotechintl.AttendanceSystem.entity.UserInfo;
 import com.cosmotechintl.AttendanceSystem.exception.ResourceNotFoundException;
 import com.cosmotechintl.AttendanceSystem.repository.AuthTokenRepository;
 import com.cosmotechintl.AttendanceSystem.repository.UserInfoRepository;
+import com.cosmotechintl.AttendanceSystem.service.AuthService;
+import com.cosmotechintl.AttendanceSystem.service.JwtService;
 import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,7 +34,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuthServiceImp implements AuthService {
+public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
@@ -53,34 +56,31 @@ public class AuthServiceImp implements AuthService {
 
             String accessToken = jwtService.generateToken(loginRequestDTO.getUsername(), roles);
             String refreshToken = jwtService.generateRefreshToken(loginRequestDTO.getUsername());
-            log.info("Access Token: {} Refresh Token: {}", accessToken, refreshToken);
             AuthToken authToken = AuthToken.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
                     .issuedDate(LocalDateTime.now())
                     .isActive(false)
-                    .userInfo((UserInfo)userDetails)
+                    .userInfo((UserInfo) userDetails)
                     .build();
-            log.info("Something after the builder"+authToken.toString());
             authTokenRepository.save(authToken);
-            log.info("After the repository saved of the authToken.");
             LoginResponseDTO loginResponseDTO = LoginResponseDTO.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
                     .build();
             return ResponseUtil.getSuccessResponse(loginResponseDTO, "Login Successful");
-        }catch (DataAccessException e) {
-            return ResponseUtil.getValidationErrorResponse("Something went wrong. "+"Please contact support.");
-        }catch (AuthenticationException e) {
-                return ResponseUtil.getValidationErrorResponse("The username or password is incorrect. Please try again.");
-        }catch (Exception e) {
+        } catch (DataAccessException e) {
+            return ResponseUtil.getValidationErrorResponse("Something went wrong. " + "Please contact support.");
+        } catch (AuthenticationException e) {
+            return ResponseUtil.getValidationErrorResponse("The username or password is incorrect. Please try again.");
+        } catch (Exception e) {
             return ResponseUtil.getErrorResponse(e, HttpStatus.SERVICE_UNAVAILABLE);
         }
     }
 
     @Override
-    public ApiResponse<?> generateRefreshToken(String refreshToken){
-        try{
+    public ApiResponse<?> generateRefreshToken(String refreshToken) {
+        try {
             if (refreshToken == null || refreshToken.trim().isEmpty()) {
                 return ResponseUtil.getValidationErrorResponse("Refresh token is missing or invalid.");
             }
@@ -90,36 +90,36 @@ public class AuthServiceImp implements AuthService {
             }
             log.info("Validation of refresh token is successful.");
             String username = jwtService.extractUsername(refreshToken);
-            List<String> roles =jwtService.extractRolesFromUsername(username);
+            List<String> roles = jwtService.extractRolesFromUsername(username);
 
             authTokenRepository.setIsActiveTrue(refreshToken);
             log.info("Used column value is changed.");
 
-            String accessToken = jwtService.generateToken(username,roles);
+            String accessToken = jwtService.generateToken(username, roles);
             String refreshTokenRefresh = jwtService.generateRefreshToken(username);
 
-            UserInfo userDetails =userInfoRepository.findByUsername(username)
-                    .orElseThrow(()->new ResourceNotFoundException("User not found"+username));
+            UserInfo userDetails = userInfoRepository.findByUsername(username)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found" + username));
 
             AuthToken authToken = AuthToken.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshTokenRefresh)
                     .issuedDate(LocalDateTime.now())
                     .isActive(false)
-                    .userInfo((UserInfo)userDetails)
+                    .userInfo((UserInfo) userDetails)
                     .build();
             authTokenRepository.save(authToken);
 
             log.info(" After the repository saved of the authToken.");
 
-            AuthResponseDTO authResponseDTO =AuthResponseDTO.
+            AuthResponseDTO authResponseDTO = AuthResponseDTO.
                     builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshTokenRefresh)
                     .build();
 
-            return ResponseUtil.getSuccessResponse(authResponseDTO,"Successfully Refreshed.");
-        }catch (Exception e) {
+            return ResponseUtil.getSuccessResponse(authResponseDTO, "Successfully Refreshed.");
+        } catch (Exception e) {
             return ResponseUtil.getErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -130,11 +130,9 @@ public class AuthServiceImp implements AuthService {
             if (accessToken == null || accessToken.trim().isEmpty()) {
                 return ResponseUtil.getValidationErrorResponse("Access token is missing or invalid.");
             }
-            log.info("Before passing the logout user for the extraction of username {}", accessToken);
             // Extract username and device ID from the token
             String username = jwtService.extractUsername(accessToken);
 
-            log.info("After the extranction of username {}", username);
             // Validate token and device ID
             AuthToken authToken = authTokenRepository.findByAccessToken(accessToken)
                     .orElseThrow(() -> new ResourceNotFoundException("Token not found or already logged out."));
@@ -149,18 +147,26 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
-    public ApiResponse<?> getAllRefreshTokens(){
+    public ApiResponse<?> getAllRefreshTokens() {
         log.info("Getting all refresh tokens.");
-       List<AuthToken> authTokens= authTokenRepository.findAll();
-        log.info("Something after the repository saved of the authTokens. {}",authTokens);
-       List<AuthResponseDTO> authResponses =new ArrayList<>();;
-       for (AuthToken authToken : authTokens) {
-           AuthResponseDTO authResponseDTO = new AuthResponseDTO();
-           authResponseDTO.setAccessToken(authToken.getAccessToken());
-           authResponseDTO.setRefreshToken(authToken.getRefreshToken());
-           authResponses.add(authResponseDTO);
-       }
-       log.info("Before response util after the repository and foreach of the authTokens. {}",authResponses);
+        List<AuthToken> authTokens = authTokenRepository.findAll();
+        List<AuthResponseDTO> authResponses = new ArrayList<>();
+        for (AuthToken authToken : authTokens) {
+            AuthResponseDTO authResponseDTO = new AuthResponseDTO();
+            authResponseDTO.setAccessToken(authToken.getAccessToken());
+            authResponseDTO.setRefreshToken(authToken.getRefreshToken());
+            authResponses.add(authResponseDTO);
+        }
         return ResponseUtil.getSuccessResponse(authResponses, "Successfully retrieved all refresh tokens.");
+    }
+
+    @Scheduled(cron = "0 0 0 L * ? ")
+    private void dropAuthTokenTable() {
+        try {
+            authTokenRepository.deleteAll();
+            log.info("All records from authToken table deleted at: {}", LocalDateTime.now());
+        } catch (Exception e) {
+            log.error("Error while deleting records from authToken table", e);
+        }
     }
 }

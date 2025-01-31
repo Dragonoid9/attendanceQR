@@ -3,7 +3,7 @@ package com.cosmotechintl.AttendanceSystem.config;
 
 import com.cosmotechintl.AttendanceSystem.service.JwtService;
 import com.cosmotechintl.AttendanceSystem.utility.ResponseUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,9 +19,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -38,7 +35,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String requestUri = request.getRequestURI();
         System.out.println("Request URI: " + requestUri);  // Log the request URI
 
-        if ("/auth/refreshToken".equals(requestUri) || ("/auth/logout".equals(requestUri))){
+        if ("/auth/refreshToken".equals(requestUri) || ("/auth/logout".equals(requestUri))) {
             filterChain.doFilter(request, response);  // Skip the JWT filter logic and continue to the controller
             return;
         }
@@ -46,12 +43,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         String token = null;
         String username = null;
-        if(authHeader != null && authHeader.startsWith("Bearer ")){
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            username = jwtService.extractUsername(token);
+            try {
+                username = jwtService.extractUsername(token);
+            } catch (ExpiredJwtException e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token is expired.");
+                return;
+            }
         }
 
-        if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 if (jwtService.validateToken(token, userDetails)) {
@@ -64,7 +67,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     ResponseUtil.getValidationErrorResponse("Access Denied");//authentication error is handled by authentrypoint.
                     return;
                 }
-            }catch (UsernameNotFoundException ex) {
+            } catch (UsernameNotFoundException ex) {
                 // Handle case where the user is not found in the database
 //                sendAuthenticationError(response, "The username or password is incorrect. Please try again.");
                 ResponseUtil.getResourceNotFoundResponse("Not a Valid Username.");//this is handled by AuthException handled in the AuthService.

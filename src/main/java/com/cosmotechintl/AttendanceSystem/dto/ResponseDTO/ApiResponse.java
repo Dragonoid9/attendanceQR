@@ -18,6 +18,6 @@ public class ApiResponse<T> {
     private String message;
     private int code;
     private T data;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss a")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss a")
     private LocalDateTime timestamp;
 }
