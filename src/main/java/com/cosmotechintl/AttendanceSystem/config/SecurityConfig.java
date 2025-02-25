@@ -61,10 +61,10 @@ public class SecurityConfig {
         return source;
     }
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception {
         JwtAuthFilter jwtAuthFilter = new JwtAuthFilter(jwtService, userDetailsService());
-
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(c -> c.configurationSource(corsConfigurationSource()))
